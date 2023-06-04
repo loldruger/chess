@@ -1,0 +1,1 @@
+TYPE-SAFE Chess-rs
