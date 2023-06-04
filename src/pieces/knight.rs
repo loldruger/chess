@@ -33,3 +33,12 @@ impl Placable for Knight {
         self.position
     }
 }
+
+impl ToString for Knight {
+    fn to_string(&self) -> String {
+        match self.color {
+            Color::Black => "♘".to_owned(),
+            Color::White => "♞".to_owned(),
+        }
+    }
+}

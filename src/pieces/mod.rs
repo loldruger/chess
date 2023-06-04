@@ -15,12 +15,3 @@ pub enum Color {
     Black,
     White
 }
-
-// pub enum Piece {
-//     Pawn(Color),
-//     Bishop(Color),
-//     Knight(Color),
-//     Rook(Color),
-//     Queen(Color),
-//     King(Color)
-// }
