@@ -25,9 +25,9 @@ impl Board {
             let bound_rank = i.get_rank() as usize;
             let bound_file = i.get_file() as usize;
 
-            // if self.board[bound_rank][bound_file].eq(&'_') {
+            if self.board[bound_rank][bound_file].eq(&'_') {
                 self.board[bound_rank][bound_file] = 'x'
-            // }
+            }
         }
     }
 
