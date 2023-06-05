@@ -69,6 +69,10 @@ impl Placable for Bishop {
     fn get_position(&self) -> Position {
         self.position
     }
+
+    fn get_color(&self) -> Color {
+        self.color
+    }
 }
 
 impl ToString for Bishop {

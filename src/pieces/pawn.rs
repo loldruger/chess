@@ -87,6 +87,10 @@ impl Placable for Pawn {
         self.position
     }
 
+    fn get_color(&self) -> Color {
+        self.color
+    }
+
     
 }
 

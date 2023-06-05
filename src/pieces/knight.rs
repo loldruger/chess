@@ -22,15 +22,24 @@ impl Knight {
 
 impl Placable for Knight {
     fn set_position(&mut self, position: Position) -> Result<(), ()> {
-        todo!()
+        self.position = position;
+        Ok(())
     }
 
     fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
-        todo!()
+        let valid_move = Vec::new();
+
+        
+        
+        valid_move
     }
 
     fn get_position(&self) -> Position {
         self.position
+    }
+
+    fn get_color(&self) -> Color {
+        self.color
     }
 }
 
