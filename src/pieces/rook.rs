@@ -28,18 +28,25 @@ impl Placable for Rook {
 
     fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
         let mut valid_moves = Vec::new();
-        let current_pos = self.get_position();
+        let current_file = self.position.get_file();
+        let current_rank = self.position.get_rank();
         
         for i in 0..8 {
-            if i != current_pos.get_file() {
-                valid_moves.push(Position::from_tuple((i, current_pos.get_rank())));
+            if i != current_file {
+                if !board.is_empty(Position::from_tuple((i, current_rank))) {
+                    break;
+                }
+                valid_moves.push(Position::from_tuple((i, current_rank)));
             }
         }
 
         // Vertical moves
         for i in 0..8 {
-            if i != current_pos.get_rank() {
-                valid_moves.push(Position::from_tuple((current_pos.get_file(), i)));
+            if i != current_rank {
+                if !board.is_empty(Position::from_tuple((current_file, i))) {
+                    break;
+                }
+                valid_moves.push(Position::from_tuple((current_file, i)));
             }
         }
 
@@ -48,6 +55,10 @@ impl Placable for Rook {
 
     fn get_position(&self) -> Position {
         self.position
+    }
+
+    fn get_color(&self) -> Color {
+        self.color
     }
 }
 
