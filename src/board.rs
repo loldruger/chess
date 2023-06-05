@@ -1,22 +1,29 @@
-use crate::{moves::{Placable, Position}, pieces::Color};
+use crate::{moves::{Placable, Position}, pieces::{Color, Queen, King, Knight, Bishop, Rook, Pawn}};
 
-pub struct Board {
-    board: [[char; 8]; 8]
+pub struct Board<'a> {
+    board: [[char; 8]; 8],
+    pieces: Vec<Box<&'a dyn Placable>>
 }
 
-impl Board {
+impl<'a> Board<'a> {
     pub fn new() -> Self {
         Self {
-            board: [['_'; 8]; 8]
+            board: [['_'; 8]; 8],
+            pieces: Vec::new()
         }
     }
 
-    pub fn spawn(&mut self, piece: &(impl Placable + ToString)) -> Result<(), ()> {
-        let pos = piece.get_position();
-        let bound_rank = pos.get_rank() as usize;
-        let bound_file = pos.get_file() as usize;
+    pub fn spawn_at(&mut self, piece: &'a mut (impl Placable + ToString), position: Position) -> Result<(), ()> {
+        piece.set_position(position)?;
+        self.pieces.push(Box::new(piece));
+
+
+        let bound_rank = position.get_rank() as usize;
+        let bound_file = position.get_file() as usize;
 
         self.board[bound_rank][bound_file] = piece.to_string().chars().nth(0).unwrap();
+        
+        self.show_valid_move(piece);
         Ok(())
     }
 
@@ -29,6 +36,12 @@ impl Board {
                 self.board[bound_rank][bound_file] = 'x'
             }
         }
+    }
+
+    pub fn get_square_info(&self, position: Position) -> Option<&Box<&dyn Placable>> {
+        self.pieces.iter().find(|x| {
+            x.get_position() == position
+        })
     }
 
     pub fn is_empty(&self, position: Position) -> bool {
@@ -59,12 +72,17 @@ impl Board {
                     _ => true
                 },
         }
-        
+    }
 
+    pub fn is_square_under_attack(&self, position: Position, color: Color) -> bool {
+        self.pieces
+            .iter()
+            .filter(|&piece| {piece.get_color() != color})
+            .any(|piece| piece.get_valid_moves(self).contains(&position))
     }
 }
 
-impl std::fmt::Display for Board {
+impl<'a> std::fmt::Display for Board<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for rank in self.board.iter() {
             for &symbol in rank {
