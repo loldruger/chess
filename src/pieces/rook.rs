@@ -31,23 +31,39 @@ impl Placable for Rook {
         let current_file = self.position.get_file();
         let current_rank = self.position.get_rank();
         
-        for i in 0..8 {
-            if i != current_file {
-                if !board.is_empty(Position::from_tuple((i, current_rank))) {
-                    break;
-                }
-                valid_moves.push(Position::from_tuple((i, current_rank)));
+        for file in (current_file + 1)..8 {
+            let position = Position::from_tuple((file, current_rank));
+            if !board.is_empty(position) {
+                break;
             }
+            valid_moves.push(position);
         }
-
-        // Vertical moves
-        for i in 0..8 {
-            if i != current_rank {
-                if !board.is_empty(Position::from_tuple((current_file, i))) {
-                    break;
-                }
-                valid_moves.push(Position::from_tuple((current_file, i)));
+    
+        // Horizontal moves to the left
+        for file in (0..current_file).rev() {
+            let position = Position::from_tuple((file, current_rank));
+            if !board.is_empty(position) {
+                break;
             }
+            valid_moves.push(position);
+        }
+    
+        // Vertical moves upwards
+        for rank in (current_rank + 1)..8 {
+            let position = Position::from_tuple((current_file, rank));
+            if !board.is_empty(position) {
+                break;
+            }
+            valid_moves.push(position);
+        }
+    
+        // Vertical moves downwards
+        for rank in (0..current_rank).rev() {
+            let position = Position::from_tuple((current_file, rank));
+            if !board.is_empty(position) {
+                break;
+            }
+            valid_moves.push(position);
         }
 
         valid_moves

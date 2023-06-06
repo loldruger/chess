@@ -7,7 +7,8 @@ use super::Color;
 pub struct King {
     color: Color,
     position: Position,
-    is_selected: bool
+    is_selected: bool,
+    is_checked: bool
 }
 
 impl King {
@@ -15,7 +16,8 @@ impl King {
         Self {
             color,
             position: Position::from_tuple((0, 0)),
-            is_selected: false
+            is_selected: false,
+            is_checked: false,
         }
     }
 }
@@ -43,7 +45,9 @@ impl Placable for King {
             let dest_rank = current_rank + rank;
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
-                valid_move.push(Position::from_tuple((dest_file, dest_rank)));
+                if !board.is_square_under_attack(Position::from_tuple((dest_file, dest_rank)), self.color) {
+                    valid_move.push(Position::from_tuple((dest_file, dest_rank)));
+                }
             }
         }
 

@@ -31,37 +31,78 @@ impl Placable for Queen {
         let current_file = self.position.get_file();
         let current_rank = self.position.get_rank();
         
-        for i in 0..8 {
-            if i != current_file {
-                valid_moves.push(Position::from_tuple((i, current_rank)));
+        for file in (current_file + 1)..8 {
+            let position = Position::from_tuple((file, current_rank));
+            if !board.is_empty(position) {
+                break;
             }
+            valid_moves.push(position);
+        }
+    
+        // Horizontal moves to the left
+        for file in (0..current_file).rev() {
+            let position = Position::from_tuple((file, current_rank));
+            if !board.is_empty(position) {
+                break;
+            }
+            valid_moves.push(position);
+        }
+    
+        // Vertical moves upwards
+        for rank in (current_rank + 1)..8 {
+            let position = Position::from_tuple((current_file, rank));
+            if !board.is_empty(position) {
+                break;
+            }
+            valid_moves.push(position);
+        }
+    
+        // Vertical moves downwards
+        for rank in (0..current_rank).rev() {
+            let position = Position::from_tuple((current_file, rank));
+            if !board.is_empty(position) {
+                break;
+            }
+            valid_moves.push(position);
         }
 
-        // Vertical moves
-        for i in 0..8 {
-            if i != current_rank {
-                valid_moves.push(Position::from_tuple((current_file, i)));
-            }
-        }
-
-        // Top-right to bottom-left diagonal moves
         for i in 1..=i32::min(current_file, 7 - current_rank) {
-            valid_moves.push(Position::from_tuple((current_file - i, current_rank + i)));
+            let position = Position::from_tuple((current_file - i, current_rank + i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Top-left to bottom-right diagonal moves
         for i in 1..=i32::min(7 - current_file, 7 - current_rank) {
-            valid_moves.push(Position::from_tuple((current_file + i, current_rank + i)));
+            let position = Position::from_tuple((current_file + i, current_rank + i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Bottom-left to top-right diagonal moves
         for i in 1..=i32::min(7 - current_file, current_rank) {
-            valid_moves.push(Position::from_tuple((current_file + i, current_rank - i)));
+            let position = Position::from_tuple((current_file + i, current_rank - i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Bottom-right to top-left diagonal moves
         for i in 1..=i32::min(current_file, current_rank) {
-            valid_moves.push(Position::from_tuple((current_file - i, current_rank - i)));
+            let position = Position::from_tuple((current_file - i, current_rank - i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         valid_moves

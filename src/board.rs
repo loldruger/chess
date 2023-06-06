@@ -1,4 +1,4 @@
-use crate::{moves::{Placable, Position}, pieces::{Color, Queen, King, Knight, Bishop, Rook, Pawn}};
+use crate::{moves::{Placable, Position}, pieces::Color};
 
 pub struct Board<'a> {
     board: [[char; 8]; 8],
@@ -12,18 +12,14 @@ impl<'a> Board<'a> {
             pieces: Vec::new()
         }
     }
-
-    pub fn spawn_at(&mut self, piece: &'a mut (impl Placable + ToString), position: Position) -> Result<(), ()> {
-        piece.set_position(position)?;
+    pub fn spawn(&mut self, piece: &'a (impl Placable + ToString)) -> Result<(), ()> {
         self.pieces.push(Box::new(piece));
 
-
-        let bound_rank = position.get_rank() as usize;
-        let bound_file = position.get_file() as usize;
+        let bound_rank = piece.get_position().get_rank() as usize;
+        let bound_file = piece.get_position().get_file() as usize;
 
         self.board[bound_rank][bound_file] = piece.to_string().chars().nth(0).unwrap();
-        
-        self.show_valid_move(piece);
+
         Ok(())
     }
 
@@ -38,8 +34,9 @@ impl<'a> Board<'a> {
         }
     }
 
+    
     pub fn get_square_info(&self, position: Position) -> Option<&Box<&dyn Placable>> {
-        self.pieces.iter().find(|x| {
+        self.pieces.iter().find(|&x| {
             x.get_position() == position
         })
     }
