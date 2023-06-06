@@ -7,7 +7,6 @@ use super::Color;
 pub struct Bishop {
     color: Color,
     position: Position,
-    is_selected: bool
 }
 
 impl Bishop {
@@ -15,7 +14,6 @@ impl Bishop {
         Self {
             color,
             position: Position::from_tuple((0, 0)),
-            is_selected: false
         }
     }
 }
@@ -44,22 +42,42 @@ impl Placable for Bishop {
 
         // Top-right to bottom-left diagonal moves
         for i in 1..=i32::min(current_file, 7 - current_rank) {
-            valid_moves.push(Position::from_tuple((current_file - i, current_rank + i)));
+            let position = Position::from_tuple((current_file - i, current_rank + i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Top-left to bottom-right diagonal moves
         for i in 1..=i32::min(7 - current_file, 7 - current_rank) {
-            valid_moves.push(Position::from_tuple((current_file + i, current_rank + i)));
+            let position = Position::from_tuple((current_file + i, current_rank + i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Bottom-left to top-right diagonal moves
         for i in 1..=i32::min(7 - current_file, current_rank) {
-            valid_moves.push(Position::from_tuple((current_file + i, current_rank - i)));
+            let position = Position::from_tuple((current_file + i, current_rank - i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
         // Bottom-right to top-left diagonal moves
         for i in 1..=i32::min(current_file, current_rank) {
-            valid_moves.push(Position::from_tuple((current_file - i, current_rank - i)));
+            let position = Position::from_tuple((current_file - i, current_rank - i));
+            if board.is_empty(position) {
+                valid_moves.push(position);
+            } else {
+                break;
+            }
         }
 
 
