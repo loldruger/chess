@@ -28,13 +28,11 @@ fn main() {
     board.spawn(&knight).ok();
     board.spawn(&queen).ok();
 
-    // board.show_valid_move(&bishop);
     if let Some(piece) = board.get_square_info(Position::from_str("C4").unwrap()) {
-        piece.get_mut().move_valid(&board, Position::from_str("D5").unwrap()).ok();
+        piece.move_valid(&board, Position::from_str("D5").unwrap()).ok();
     }
-    // bishop.move_valid(&board, Position::from_str("C5").unwrap());
-
-    // let a = board.is_square_under_attack(Position::from_str("C2").unwrap(), Color::Black);
+// ------^^^^------ cannot borrow `***piece` as mutable, as it is behind a `&` reference
+// cannot borrow as mutable
     println!("{board}");
 
 }
