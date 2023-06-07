@@ -34,6 +34,10 @@ impl Placable for Pawn {
         Ok(())
     }
 
+    fn move_valid(&mut self, board: &Board, position: Position) -> Result<(), ()> {
+        todo!()
+    }
+
     fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
         let mut valid_moves = Vec::new();
 
@@ -95,20 +99,32 @@ impl Placable for Pawn {
 }
 
 impl Promotable for Pawn {
-    fn into_rook(self) -> super::Rook {
-        Rook::new(self.color)
+    fn into_rook(self) -> Rook {
+        let mut piece = Rook::new(self.color);
+        piece.set_position(self.position).unwrap();
+
+        piece
     }
 
     fn into_bishop(self) -> Bishop {
-        Bishop::new(self.color)
+        let mut piece = Bishop::new(self.color);
+        piece.set_position(self.position).unwrap();
+        
+        piece
     }
 
     fn into_knight(self) -> Knight {
-        Knight::new(self.color)
+        let mut piece = Knight::new(self.color);
+        piece.set_position(self.position).unwrap();
+        
+        piece
     }
 
     fn into_queen(self) -> Queen {
-        Queen::new(self.color)
+        let mut piece = Queen::new(self.color);
+        piece.set_position(self.position).unwrap();
+        
+        piece
     }
 }
 

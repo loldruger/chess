@@ -26,6 +26,10 @@ impl Placable for Queen {
         Ok(())
     }
 
+    fn move_valid(&mut self, board: &Board, position: Position) -> Result<(), ()> {
+        todo!()
+    }
+
     fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
         let mut valid_moves = Vec::new();
         let current_file = self.position.get_file();

@@ -52,23 +52,8 @@ impl<'a> Board<'a> {
     }
 
     pub fn is_enemy_piece(&self, position: Position, color: Color) -> bool {
-        let bound_rank = position.get_rank() as usize;
-        let bound_file = position.get_file() as usize;
-
-        match color {
-            Color::Black => 
-                match self.board[bound_rank][bound_file] {
-                    '♚'|'♛'|'♜'|'♝'|'♞'|'♟' => true,
-                    '_' => false,
-                    _ => false
-                },
-            Color::White =>
-                match self.board[bound_rank][bound_file] {
-                    '♚'|'♛'|'♜'|'♝'|'♞'|'♟' => false,
-                    '_' => false,
-                    _ => true
-                },
-        }
+        self.get_square_info(position)
+            .is_some_and(|x| x.get_color() != color )
     }
 
     pub fn is_square_under_attack(&self, position: Position, color: Color) -> bool {

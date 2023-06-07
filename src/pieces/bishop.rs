@@ -34,6 +34,16 @@ impl Placable for Bishop {
         Ok(())
     }
 
+    fn move_valid(&mut self, board: &Board, position: Position) -> Result<(), ()> {
+        if self.get_valid_moves(board).iter().any(|&x| x == position) {
+            self.position = position;
+
+            return Ok(());
+        }
+
+        Err(())
+    }
+
     fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
         let mut valid_moves = Vec::new();
 
