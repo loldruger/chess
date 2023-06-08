@@ -1,42 +1,35 @@
-use crate::{moves::{Placable, Position}, pieces::Color};
+use crate::{moves::{Placable, Position}, pieces::{Color, Piece}};
 
-pub struct Board<'a> {
-    board: [[char; 8]; 8],
-    pieces: Vec<Box<&'a dyn Placable>>
+#[derive(Clone, Copy)]
+pub enum Square {
+    Empty,
+    Pieces(Piece)
 }
 
-impl<'a> Board<'a> {
+pub struct Board {
+    square: [[Square; 8]; 8],
+    pieces: Vec<Piece>
+}
+
+impl Board {
     pub fn new() -> Self {
         Self {
-            board: [['_'; 8]; 8],
+            square: [[Square::Empty; 8]; 8],
             pieces: Vec::new()
         }
     }
-    pub fn spawn(&mut self, piece: &'a (impl Placable + ToString)) -> Result<(), ()> {
-        self.pieces.push(Box::new(piece));
-
+    pub fn spawn(&mut self, piece: Piece) -> Result<(), ()> {
         let bound_rank = piece.get_position().get_rank() as usize;
         let bound_file = piece.get_position().get_file() as usize;
-
-        self.board[bound_rank][bound_file] = piece.to_string().chars().nth(0).unwrap();
-
+        
+        self.square[bound_rank][bound_file] = Square::Pieces(piece);
+        self.pieces.push(piece);
+        
         Ok(())
     }
-
-    pub fn show_valid_move(&mut self, target: &impl Placable) {
-        for i in target.get_valid_moves(self).iter() { 
-            let bound_rank = i.get_rank() as usize;
-            let bound_file = i.get_file() as usize;
-
-            if self.board[bound_rank][bound_file].eq(&'_') {
-                self.board[bound_rank][bound_file] = 'x'
-            }
-        }
-    }
-
     
-    pub fn get_square_info(&self, position: Position) -> Option<&Box<&dyn Placable>> {
-        self.pieces.iter().find(|&x| {
+    pub fn get_square_info(&self, position: Position) -> Option<&Piece> {
+        self.pieces.iter().find(|x| {
             x.get_position() == position
         })
     }
@@ -45,8 +38,8 @@ impl<'a> Board<'a> {
         let bound_rank = position.get_rank() as usize;
         let bound_file = position.get_file() as usize;
 
-        match self.board[bound_rank][bound_file] {
-            '_' => true,
+        match self.square[bound_rank][bound_file] {
+            Square::Empty => true,
             _ => false
         }
     }
@@ -64,11 +57,22 @@ impl<'a> Board<'a> {
     }
 }
 
-impl<'a> std::fmt::Display for Board<'a> {
+impl std::fmt::Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for rank in self.board.iter() {
+        for rank in self.square.iter() {
             for &symbol in rank {
-                write!(f, "{} ", symbol)?;
+                let a = match symbol {
+                    Square::Empty => '_',
+                    Square::Pieces(piece) => match piece {
+                        Piece::P(piece) => if piece.get_color() == Color::Black {'♙'} else {'♟'},
+                        Piece::B(piece) => if piece.get_color() == Color::Black {'♗'} else {'♝'},
+                        Piece::N(piece) => if piece.get_color() == Color::Black {'♘'} else {'♞'},
+                        Piece::R(piece) => if piece.get_color() == Color::Black {'♖'} else {'♜'},
+                        Piece::Q(piece) => if piece.get_color() == Color::Black {'♕'} else {'♛'},
+                        Piece::K(piece) => if piece.get_color() == Color::Black {'♔'} else {'♚'},
+                    },
+                };
+                write!(f, "{} ", a)?;
             }
             writeln!(f)?;
         }

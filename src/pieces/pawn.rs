@@ -4,6 +4,7 @@ use crate::{
 
 use super::{Color, Rook, Bishop, Knight, Queen};
 
+#[derive(Clone, Copy)]
 pub struct Pawn {
     color: Color,
     position: Position,
@@ -125,14 +126,5 @@ impl Promotable for Pawn {
         piece.set_position(self.position).unwrap();
         
         piece
-    }
-}
-
-impl ToString for Pawn {
-    fn to_string(&self) -> String {
-        match self.color {
-            Color::Black => "♙".to_owned(),
-            Color::White => "♟".to_owned(),
-        }
     }
 }

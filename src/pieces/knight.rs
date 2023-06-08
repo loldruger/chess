@@ -4,6 +4,7 @@ use crate::{
 
 use super::Color;
 
+#[derive(Clone, Copy)]
 pub struct Knight {
     color: Color,
     position: Position,
@@ -68,14 +69,5 @@ impl Placable for Knight {
 
     fn get_color(&self) -> Color {
         self.color
-    }
-}
-
-impl ToString for Knight {
-    fn to_string(&self) -> String {
-        match self.color {
-            Color::Black => "♘".to_owned(),
-            Color::White => "♞".to_owned(),
-        }
     }
 }

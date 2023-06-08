@@ -4,6 +4,7 @@ use crate::{
 
 use super::Color;
 
+#[derive(Clone, Copy)]
 pub struct Bishop {
     color: Color,
     position: Position,
@@ -100,14 +101,5 @@ impl Placable for Bishop {
 
     fn get_color(&self) -> Color {
         self.color
-    }
-}
-
-impl ToString for Bishop {
-    fn to_string(&self) -> String {
-        match self.color {
-            Color::Black => "♗".to_owned(),
-            Color::White => "♝".to_owned(),
-        }
     }
 }
