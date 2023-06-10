@@ -4,7 +4,7 @@ use crate::{
 
 use super::Color;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Bishop {
     color: Color,
     position: Position,

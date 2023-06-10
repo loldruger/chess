@@ -20,7 +20,7 @@ pub enum Color {
     White
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum Piece {
     P(Pawn),
     B(Bishop),
@@ -31,6 +31,11 @@ pub enum Piece {
 }
 
 impl Piece {
+    pub fn get_piece_mut(&mut self) -> &mut Piece {
+        match self {
+            p => p
+        }
+    }
     pub fn set_position(&mut self, position: Position) -> Result<(), ()> {
         match self {
             Piece::P(p) => p.set_position(position),
