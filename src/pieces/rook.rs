@@ -5,20 +5,34 @@ use crate::{
 use super::Color;
 
 #[derive(Clone, Copy)]
-pub struct Rook(Color);
+pub struct Rook {
+    color: Color,
+    is_threatened: bool,
+}
 
 impl Rook {
     pub fn new(color: Color) -> Self {
-        Self(color)
+        Self {
+            color,
+            is_threatened: false,
+        }
     }
 
     pub fn get_color(&self) -> Color {
-        self.0
+        self.color
+    }
+
+    pub fn is_threatened(&self) -> bool {
+        self.is_threatened
+    }
+
+    pub fn set_threatened(&mut self, is_threatened: bool) {
+        self.is_threatened = is_threatened;
     }
 }
 
 impl Placable for Rook {
-    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
         let (current_file, current_rank) = coord.into_position();
         let current_file = current_file as usize;
@@ -68,6 +82,6 @@ impl Placable for Rook {
     }
 
     fn get_color(&self) -> Color {
-        self.0
+        self.color
     }
 }

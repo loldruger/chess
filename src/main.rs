@@ -19,7 +19,8 @@ fn main() {
     let knight = Knight::new(Color::Black);
 
     game.get_board_mut().spawn(Piece::B(bishop), Square::C2).ok();
-    game.get_board_mut().spawn(Piece::R(rook), Square::G2).ok();
+    game.get_board_mut().spawn(Piece::R(rook), Square::F5).ok();
+    game.get_board_mut().spawn(Piece::K(king), Square::D4).ok();
     // game.get_board_mut().spawn(Piece::K(king), Square::A2).ok();
     // game.get_board_mut().spawn(Piece::N(knight), Square::A3).ok();
     // game.get_board_mut().spawn(Piece::Q(queen), Square::A8).ok();
@@ -27,7 +28,13 @@ fn main() {
     // bishop.get_position(game.get_board());
     println!("{}", game.get_board());
     
-    game.select_piece(Square::G2).and_then(|_| {
+    game.select_piece(Square::F5).and_then(|_| {
+        // game.move_piece(Square::B3).ok();
+
+        Ok(())
+    }).ok();
+
+    game.select_piece(Square::D4).and_then(|_| {
         // game.move_piece(Square::B3).ok();
 
         Ok(())

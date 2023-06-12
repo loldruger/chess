@@ -44,25 +44,22 @@ pub enum SquareKind {
     Empty,
     UnderAttack(Color),
     Vulnerable(Color),
-    Pieces { 
-        piece: Piece,
-        position: Square,
-        is_under_attack: bool
-    }
+    Pieces(Piece)
 }
 
 impl SquareKind {
-    pub fn get_piece(&self) -> Option<Piece> {
+    pub fn get_piece(&self) -> Option<&Piece> {
         match self {
-            SquareKind::Pieces { piece, .. } => Some(*piece),
+            SquareKind::Pieces(piece) => Some(piece),
             _ => None,
         }
     }
 
-    pub fn get_position(&self) -> Option<Square> {
+    pub fn get_piece_mut(&mut self) -> Option<&mut Piece> {
         match self {
-            SquareKind::Pieces { position, .. } => Some(*position),
+            SquareKind::Pieces(ref mut piece) => Some(piece),
             _ => None,
         }
     }
+
 }

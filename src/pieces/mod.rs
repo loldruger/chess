@@ -16,7 +16,6 @@ use crate::{moves::Placable, board::Board, square::Square};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Color {
-    Both,
     Black,
     White
 }
@@ -34,40 +33,6 @@ pub enum Piece {
 }
 
 impl Piece {
-    pub fn get_bishop(&self) -> Option<Bishop> {
-        match self {
-            Piece::B(p) => Some(*p),
-            _ => None
-        }
-    }
-
-    pub fn get_placable_mut(&mut self) -> &mut dyn Placable {
-        match self {
-            Piece::P(p) => p,
-            Piece::B(p) => p,
-            Piece::N(p) => p,
-            Piece::R(p) => p,
-            Piece::Q(p) => p,
-            Piece::K(p) => p,
-        }
-    }
-    pub fn get_piece_mut(&mut self) -> &mut Piece {
-        match self {
-            p => p
-        }
-    }
-
-    pub fn get_position(&self, board: &Board) -> Option<Square> {
-        match self {
-            Piece::P(p) => p.get_position(board),
-            Piece::B(p) => p.get_position(board),
-            Piece::N(p) => p.get_position(board),
-            Piece::R(p) => p.get_position(board),
-            Piece::Q(p) => p.get_position(board),
-            Piece::K(p) => p.get_position(board),
-        }
-    }
-
     pub fn get_color(&self) -> Color {
         match self {
             Piece::P(p) => p.get_color(),
@@ -79,7 +44,7 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         match self {
             Piece::P(p) => p.get_valid_moves(board, coord, is_threaten),
             Piece::B(p) => p.get_valid_moves(board, coord, is_threaten),
@@ -87,6 +52,28 @@ impl Piece {
             Piece::R(p) => p.get_valid_moves(board, coord, is_threaten),
             Piece::Q(p) => p.get_valid_moves(board, coord, is_threaten),
             Piece::K(p) => p.get_valid_moves(board, coord, is_threaten),
+        }
+    }
+
+    pub fn is_threatened(&self) -> bool {
+        match self {
+            Piece::P(p) => p.is_threatened(),
+            Piece::B(p) => p.is_threatened(),
+            Piece::N(p) => p.is_threatened(),
+            Piece::R(p) => p.is_threatened(),
+            Piece::Q(p) => p.is_threatened(),
+            Piece::K(p) => p.is_threatened(),
+        }
+    }
+
+    pub fn set_threatened(&mut self, is_threatened: bool) {
+        match self {
+            Piece::P(p) => p.set_threatened(is_threatened),
+            Piece::B(p) => p.set_threatened(is_threatened),
+            Piece::N(p) => p.set_threatened(is_threatened),
+            Piece::R(p) => p.set_threatened(is_threatened),
+            Piece::Q(p) => p.set_threatened(is_threatened),
+            Piece::K(p) => p.set_threatened(is_threatened),
         }
     }
 }

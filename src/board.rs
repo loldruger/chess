@@ -16,12 +16,8 @@ impl Board {
 
         match self.square[file][rank] {
             SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
-                self.square[file][rank] = SquareKind::Pieces {
-                    piece,
-                    position: coord,
-                    is_under_attack: false,
-                };
-        
+                self.square[file][rank] = SquareKind::Pieces(piece);
+                println!("spawn. {:p}", &piece);
                 Ok(())
             },
             _ => Err(format!("there is already a piece at {:#?}", coord.into_position())),
@@ -32,25 +28,36 @@ impl Board {
         let (rank, file) = coord.into_position();
 
         match self.square[file][rank] {
-            SquareKind::Empty => true,
-            _ => false,
+            SquareKind::Pieces(_) => false,
+            SquareKind::Empty | SquareKind::Vulnerable(_) | SquareKind::UnderAttack(_) => true,
         }
     }
     
-    pub fn get_piece(&self, coord: Square) -> Option<Piece> {
+    pub fn is_threatened(&mut self, coord: Square, color: Color) -> bool {
         let (rank, file) = coord.into_position();
 
         match self.square[file][rank] {
-            SquareKind::Pieces { piece, .. } => Some(piece),
-            _ => None,
+            SquareKind::Pieces(piece) => piece.is_threatened(),
+            _ => false,
         }
     }
+    pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
+        let (rank, file) = coord.into_position();
 
-    pub fn get_valid_moves(&self, coord: Square, is_threaten: bool) -> Vec<Square> {
+        self.square[file][rank].get_piece()
+    }
+
+    pub fn get_piece_mut(&mut self, coord: Square) -> Option<&mut Piece> {
+        let (rank, file) = coord.into_position();
+
+        self.square[file][rank].get_piece_mut()
+    }
+
+    pub fn get_valid_moves(&mut self, coord: Square, is_threaten: bool) -> Vec<Square> {
         let (rank, file) = coord.into_position();
 
         match self.square[file][rank] {
-            SquareKind::Pieces { piece, .. } => piece.get_valid_moves(self, coord, is_threaten),
+            SquareKind::Pieces(piece) => piece.get_valid_moves(self, coord, is_threaten),
             _ => Vec::new(),
         }
     }
@@ -67,7 +74,7 @@ impl Board {
             let (rank, file) = i.into_position();
             match self.square[file][rank] {
                 SquareKind::Empty => self.square[file][rank] = SquareKind::Vulnerable(color),
-                SquareKind::Pieces { mut is_under_attack, .. } => is_under_attack = true,
+                SquareKind::Pieces { .. } => (),
                 _ => (),
             }
         }
@@ -77,7 +84,7 @@ impl Board {
         for rank in self.square.iter_mut() {
             for square in rank.iter_mut() {
                 match square {
-                    SquareKind::UnderAttack(_) => *square = SquareKind::Empty,
+                    SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => *square = SquareKind::Empty,
                     _ => (),
                 }
             }
@@ -88,7 +95,7 @@ impl Board {
         let (rank_from, file_from) = coord_from.into_position();
 
         match self.square[file_from][rank_from] {
-            SquareKind::Pieces { piece, .. } => {
+            SquareKind::Pieces(piece) => {
                 self.square[file_from][rank_from] = SquareKind::Empty;
                 self.spawn(piece, coord_to)?;
 
@@ -109,56 +116,56 @@ impl std::fmt::Display for Board {
                     SquareKind::Empty => "_".to_owned(),
                     SquareKind::UnderAttack(_) => "X".to_owned(),
                     SquareKind::Vulnerable(_) => "V".to_owned(),
-                    SquareKind::Pieces { piece, is_under_attack,.. } => match piece {
-                        Piece::P(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♙" } else { "♟" };
+                    SquareKind::Pieces(piece) => match piece {
+                        Piece::P(pawn) => {
+                            let a = if pawn.get_color() == Color::Black { "♙" } else { "♟" };
 
-                            if *is_under_attack {
+                            if pawn.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()
                             }
                         },
-                        Piece::B(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♗" } else { "♝" }; 
+                        Piece::B(bishop) => {
+                            let a = if bishop.get_color() == Color::Black { "♗" } else { "♝" }; 
                             
-                            if *is_under_attack {
+                            if bishop.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()
                             }
                         },
-                        Piece::N(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♘" } else { "♞" }; 
+                        Piece::N(knight) => {
+                            let a = if knight.get_color() == Color::Black { "♘" } else { "♞" }; 
                             
-                            if *is_under_attack {
+                            if knight.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()
                             }
                         },
-                        Piece::R(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♖" } else { "♜" }; 
-                            
-                            if *is_under_attack {
+                        Piece::R(rook) => {
+                            let a = if rook.get_color() == Color::Black { "♖" } else { "♜" }; 
+
+                            if rook.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()
                             }
                         },
-                        Piece::Q(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♕" } else { "♛" }; 
+                        Piece::Q(queen) => {
+                            let a = if queen.get_color() == Color::Black { "♕" } else { "♛" }; 
                             
-                            if *is_under_attack {
+                            if queen.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()
                             }
                         },
-                        Piece::K(piece) => {
-                            let a = if piece.get_color() == Color::Black { "♔" } else { "♚" }; 
+                        Piece::K(king) => {
+                            let a = if king.get_color() == Color::Black { "♔" } else { "♚" }; 
                             
-                            if *is_under_attack {
+                            if king.is_threatened() {
                                 format!("\x1b[0;31m{a}\x1b[0;37m")
                             } else {
                                 a.to_owned()

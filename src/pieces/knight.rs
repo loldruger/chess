@@ -5,16 +5,29 @@ use crate::{
 use super::Color;
 
 #[derive(Clone, Copy)]
-pub struct Knight(Color);
-
+pub struct Knight {
+    color: Color,
+    is_threatened: bool,
+}
 impl Knight {
     pub fn new(color: Color) -> Self {
-        Self(color)
+        Self {
+            color,
+            is_threatened: false,
+        }
+    }
+
+    pub fn is_threatened(&self) -> bool {
+        self.is_threatened
+    }
+
+    pub fn set_threatened(&mut self, is_threatened: bool) {
+        self.is_threatened = is_threatened;
     }
 }
 
 impl Placable for Knight {
-    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         todo!()
         // let mut valid_move = Vec::new();
 
@@ -52,6 +65,6 @@ impl Placable for Knight {
     }
 
     fn get_color(&self) -> Color {
-        self.0
+        self.color
     }
 }

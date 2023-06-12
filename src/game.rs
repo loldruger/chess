@@ -7,7 +7,7 @@ pub struct GameManager {
     turn: Color,
     piece_selected: (Option<Piece>, Square),
     piece_selected_valid_moves: Vec<Square>,
-    piece_selected_threatening_moves: Vec<Square>,
+    piece_selected_threaten_moves: Vec<Square>,
 }
 
 impl GameManager {
@@ -17,7 +17,7 @@ impl GameManager {
             turn: Color::White,
             piece_selected: (None, Square::A1),
             piece_selected_valid_moves: Vec::new(),
-            piece_selected_threatening_moves: Vec::new(),
+            piece_selected_threaten_moves: Vec::new(),
         }
     }
 
@@ -41,14 +41,15 @@ impl GameManager {
         &self.piece_selected_valid_moves
     }
 
-    pub fn select_piece(&mut self, position: Square) -> Result<(), ()> {
-        self.piece_selected.0 = self.board.get_piece(position);
+    pub fn select_piece(&mut self, position: Square) -> Result<(), String> {
+        self.piece_selected.0 = self.board.get_piece(position).cloned();
         self.piece_selected.1 = position;
 
         self.piece_selected_valid_moves = self.board.get_valid_moves(position, false);
-        self.piece_selected_threatening_moves = self.board.get_valid_moves(position, true);
+        self.piece_selected_threaten_moves = self.board.get_valid_moves(position, true);
 
-        self.board.mark_threaten(&self.piece_selected_threatening_moves, self.piece_selected.0.unwrap().get_color());
+        self.board.clear_board();
+        self.board.mark_threaten(&self.piece_selected_threaten_moves, self.piece_selected.0.unwrap().get_color());
         self.board.mark_under_attack(&self.piece_selected_valid_moves, self.piece_selected.0.unwrap().get_color());
         Ok(())
     }

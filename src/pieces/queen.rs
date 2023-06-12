@@ -5,16 +5,34 @@ use crate::{
 use super::Color;
 
 #[derive(Clone, Copy)]
-pub struct Queen(Color);
+pub struct Queen {
+    color: Color,
+    is_threatened: bool,
+}
 
 impl Queen {
     pub fn new(color: Color) -> Self {
-        Self(color)
+        Self {
+            color,
+            is_threatened: false,
+        }
+    }
+
+    pub fn is_threatened(&self) -> bool {
+        self.is_threatened
+    }
+
+    pub fn set_vulnerable(&mut self, is_threatened: bool) {
+        self.is_threatened = is_threatened;
+    }
+
+    pub fn set_threatened(&mut self, is_threatened: bool) {
+        self.is_threatened = is_threatened;
     }
 }
 
 impl Placable for Queen {
-    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         todo!()
         // let mut valid_moves = Vec::new();
         // let current_file = self.position.get_file();
@@ -103,6 +121,6 @@ impl Placable for Queen {
     }
 
     fn get_color(&self) -> Color {
-        self.0
+        self.color
     }
 }

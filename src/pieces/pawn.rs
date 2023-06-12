@@ -5,25 +5,39 @@ use crate::{
 use super::{Color, Rook, Bishop, Knight, Queen};
 
 #[derive(Clone, Copy)]
-pub struct Pawn(Color);
+pub struct Pawn {
+    color: Color,
+    is_threatened: bool,
+}
 
 impl Pawn {
     pub fn new(color: Color) -> Self { 
-        Self(color)
+        Self {
+            color,
+            is_threatened: false,
+        }
     }
 
-    fn en_passant(&mut self, board: &Board) {
+    pub fn en_passant(&mut self, board: &Board) {
 
-        match self.0 {
+        match self.color {
             Color::Black => todo!(),
             Color::White => todo!(),
             _ => ()
         }
     }
+
+    pub fn is_threatened(&self) -> bool {
+        self.is_threatened
+    }
+
+    pub fn set_threatened(&mut self, is_threatened: bool) {
+        self.is_threatened = is_threatened;
+    }
 }
 
 impl Placable for Pawn {
-    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         todo!()
         // let mut valid_moves = Vec::new();
 
@@ -78,7 +92,7 @@ impl Placable for Pawn {
     }
 
     fn get_color(&self) -> Color {
-        self.0
+        self.color
     }
 
     
@@ -86,18 +100,18 @@ impl Placable for Pawn {
 
 impl Promotable for Pawn {
     fn into_rook(self) -> Rook {
-        Rook::new(self.0)
+        Rook::new(self.color)
     }
 
     fn into_bishop(self) -> Bishop {
-        Bishop::new(self.0)
+        Bishop::new(self.color)
     }
 
     fn into_knight(self) -> Knight {
-        Knight::new(self.0)
+        Knight::new(self.color)
     }
 
     fn into_queen(self) -> Queen {
-        Queen::new(self.0)
+        Queen::new(self.color)
     }
 }
