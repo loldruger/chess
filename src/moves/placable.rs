@@ -1,10 +1,7 @@
-use crate::{board::Board, pieces::Color};
-use super::Position;
+use crate::{board::Board, pieces::Color, square::Square};
 
 pub trait Placable {
     fn get_color(&self) -> Color;
-    fn get_position(&self) -> Position;
-    fn set_position(&mut self, position: Position) -> Result<(), ()>;
-    fn get_valid_moves(&self, board: &Board) -> Vec<Position>;
-    fn move_valid(&mut self, board: &Board, position: Position) -> Result<(), ()>;
+    fn get_position(&self, board: &Board) -> Option<Square>;
+    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square>;
 }

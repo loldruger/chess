@@ -1,126 +1,177 @@
-use crate::{moves::{Placable, Position}, pieces::{Color, Piece}};
-
-#[derive(Clone)]
-pub enum Square {
-    Empty,
-    Pieces(Piece)
-}
+use crate::{moves::{Placable}, pieces::{Color, Piece}, square::{SquareKind, Square}};
 
 pub struct Board {
-    square: Vec<Vec<Square>>
+    square: [[SquareKind; 8]; 8]
 }
 
 impl Board {
     pub fn new() -> Self {
         Self {
-            square: vec![vec![Square::Empty; 8]; 8]
+            square: [[SquareKind::Empty; 8]; 8]
         }
     }
-    pub fn spawn(&mut self, piece: Piece) -> Result<(), ()> {
-        let bound_rank = piece.get_position().get_rank() as usize;
-        let bound_file = piece.get_position().get_file() as usize;
-        
-        match self.square[bound_rank][bound_file] {
-            Square::Empty => {
-                self.square[bound_rank][bound_file] = Square::Pieces(piece);
+
+    pub fn spawn(&mut self, piece: Piece, coord: Square) -> Result<(), String> {
+        let (rank, file) = coord.into_position();
+
+        match self.square[file][rank] {
+            SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
+                self.square[file][rank] = SquareKind::Pieces {
+                    piece,
+                    position: coord,
+                    is_under_attack: false,
+                };
         
                 Ok(())
             },
-            Square::Pieces(_) => Err(()),
+            _ => Err(format!("there is already a piece at {:#?}", coord.into_position())),
         }
     }
     
-    pub fn get_square_info(&self, position: Position) -> Option<&Square> {
-        let bound_rank = position.get_rank() as usize;
-        let bound_file = position.get_file() as usize;
-        
-        Some(&self.square[bound_rank][bound_file])
+    pub fn is_empty(&self, coord: Square) -> bool {
+        let (rank, file) = coord.into_position();
+
+        match self.square[file][rank] {
+            SquareKind::Empty => true,
+            _ => false,
+        }
+    }
+    
+    pub fn get_piece(&self, coord: Square) -> Option<Piece> {
+        let (rank, file) = coord.into_position();
+
+        match self.square[file][rank] {
+            SquareKind::Pieces { piece, .. } => Some(piece),
+            _ => None,
+        }
     }
 
-    pub fn get_piece_mut(&mut self, position: Position) -> Option<&mut Piece> {
-        let result = self.square.iter_mut().flatten().find(|x| {
-            match x {
-                Square::Empty => false,
-                Square::Pieces(p) => p.get_position() == position,
+    pub fn get_valid_moves(&self, coord: Square, is_threaten: bool) -> Vec<Square> {
+        let (rank, file) = coord.into_position();
+
+        match self.square[file][rank] {
+            SquareKind::Pieces { piece, .. } => piece.get_valid_moves(self, coord, is_threaten),
+            _ => Vec::new(),
+        }
+    }
+
+    pub fn mark_under_attack(&mut self, coords: &Vec<Square>, color: Color) {
+        for i in coords {
+            let (rank, file) = i.into_position();
+            self.square[file][rank] = SquareKind::UnderAttack(color);
+        }
+    }
+
+    pub fn mark_threaten(&mut self, coords: &Vec<Square>, color: Color) {
+        for i in coords {
+            let (rank, file) = i.into_position();
+            match self.square[file][rank] {
+                SquareKind::Empty => self.square[file][rank] = SquareKind::Vulnerable(color),
+                SquareKind::Pieces { mut is_under_attack, .. } => is_under_attack = true,
+                _ => (),
             }
-        });
+        }
+    }
 
-        match result {
-            Some(p) => {
-                match p {
-                    Square::Empty => None,
-                    Square::Pieces(p) => Some(p),
+    pub fn clear_board(&mut self) {
+        for rank in self.square.iter_mut() {
+            for square in rank.iter_mut() {
+                match square {
+                    SquareKind::UnderAttack(_) => *square = SquareKind::Empty,
+                    _ => (),
                 }
+            }
+        }
+    }
+
+    pub fn move_piece(&mut self, coord_from: Square, coord_to: Square) -> Result<(), String> {
+        let (rank_from, file_from) = coord_from.into_position();
+
+        match self.square[file_from][rank_from] {
+            SquareKind::Pieces { piece, .. } => {
+                self.square[file_from][rank_from] = SquareKind::Empty;
+                self.spawn(piece, coord_to)?;
+
+                Ok(())
             },
-            None => None,
+            _ => Err(format!("cannot find any pieces at {coord_from}")),
         }
-    }
-
-    pub fn is_empty(&self, position: Position) -> bool {
-        let bound_rank = position.get_rank() as usize;
-        let bound_file = position.get_file() as usize;
-
-        match self.square[bound_rank][bound_file] {
-            Square::Empty => true,
-            _ => false
-        }
-    }
-
-    pub fn is_enemy_piece(&self, position: Position, color: Color) -> bool {
-        self.get_square_info(position)
-            .is_some_and(|x| {
-                match x {
-                    Square::Empty => false,
-                    Square::Pieces(piece) => match piece {
-                        Piece::P(piece) => piece.get_color() != color,
-                        Piece::B(piece) => piece.get_color() != color,
-                        Piece::N(piece) => piece.get_color() != color,
-                        Piece::R(piece) => piece.get_color() != color,
-                        Piece::Q(piece) => piece.get_color() != color,
-                        Piece::K(piece) => piece.get_color() != color,
-                    },
-                }
-            })
-    }
-
-    pub fn is_square_under_attack(&self, position: Position, color: Color) -> bool {
-        self.square
-            .iter()
-            .flatten()
-            .filter(|&piece| {
-                match piece {
-                    Square::Empty => false,
-                    Square::Pieces(p) => p.get_color() != color,
-                }
-            })
-            .any(|piece| {
-                match piece {
-                    Square::Empty => false,
-                    Square::Pieces(p) => p.get_valid_moves(self).contains(&position),
-                }
-            })
     }
 }
 
 impl std::fmt::Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for rank in self.square.iter() {
+        writeln!(f, "  A B C D E F G H")?;
+        for (i, rank) in self.square.iter().rev().enumerate() {
+            write!(f, "{} ", 8 - i)?;
             for symbol in rank {
                 let a = match symbol {
-                    Square::Empty => '_',
-                    Square::Pieces(piece) => match piece {
-                        Piece::P(piece) => if piece.get_color() == Color::Black {'♙'} else {'♟'},
-                        Piece::B(piece) => if piece.get_color() == Color::Black {'♗'} else {'♝'},
-                        Piece::N(piece) => if piece.get_color() == Color::Black {'♘'} else {'♞'},
-                        Piece::R(piece) => if piece.get_color() == Color::Black {'♖'} else {'♜'},
-                        Piece::Q(piece) => if piece.get_color() == Color::Black {'♕'} else {'♛'},
-                        Piece::K(piece) => if piece.get_color() == Color::Black {'♔'} else {'♚'},
+                    SquareKind::Empty => "_".to_owned(),
+                    SquareKind::UnderAttack(_) => "X".to_owned(),
+                    SquareKind::Vulnerable(_) => "V".to_owned(),
+                    SquareKind::Pieces { piece, is_under_attack,.. } => match piece {
+                        Piece::P(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♙" } else { "♟" };
+
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
+                        Piece::B(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♗" } else { "♝" }; 
+                            
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
+                        Piece::N(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♘" } else { "♞" }; 
+                            
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
+                        Piece::R(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♖" } else { "♜" }; 
+                            
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
+                        Piece::Q(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♕" } else { "♛" }; 
+                            
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
+                        Piece::K(piece) => {
+                            let a = if piece.get_color() == Color::Black { "♔" } else { "♚" }; 
+                            
+                            if *is_under_attack {
+                                format!("\x1b[0;31m{a}\x1b[0;37m")
+                            } else {
+                                a.to_owned()
+                            }
+                        },
                     },
                 };
                 write!(f, "{} ", a)?;
             }
+            write!(f, "{} ", 8 - i)?;
             writeln!(f)?;
         }
+        writeln!(f, "  A B C D E F G H")?;
         Ok(())
     }
 }

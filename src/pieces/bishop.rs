@@ -1,59 +1,33 @@
 use crate::{
-    moves::{Placable, Position}, board::Board,
+    moves::Placable, board::Board, square::Square,
 };
 
 use super::Color;
 
-#[derive(Clone)]
-pub struct Bishop {
-    color: Color,
-    position: Position,
-}
+#[derive(Clone, Copy, PartialEq)]
+pub struct Bishop(Color);
 
 impl Bishop {
     pub fn new(color: Color) -> Self {
-        Self {
-            color,
-            position: Position::from_tuple((0, 0)),
-        }
+        Self(color)
+    }
+
+    pub fn get_color(&self) -> Color {
+        self.0
     }
 }
 
 impl Placable for Bishop {
-    fn set_position(&mut self, position: Position) -> Result<(), ()> {
-        // if let Some(x) = self.get_valid_moves()
-        //     .iter()
-        //     .find(|x| {
-        //         **x == self.get_position()
-        //     }) {
-        //         self.position = *x;
-        //         Ok(())
-        //     } else {
-        //         Err(())
-        //     }
-        self.position = position;
-        Ok(())
-    }
-
-    fn move_valid(&mut self, board: &Board, position: Position) -> Result<(), ()> {
-        if self.get_valid_moves(board).iter().any(|&x| x == position) {
-            self.position = position;
-
-            return Ok(());
-        }
-
-        Err(())
-    }
-
-    fn get_valid_moves(&self, board: &Board) -> Vec<Position> {
+    fn get_valid_moves(&self, board: &Board, coord: Square, is_threaten: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
 
-        let current_file = self.position.get_file();
-        let current_rank = self.position.get_rank();
+        let (current_file, current_rank) = coord.into_position();
+        let current_file = current_file as i32;
+        let current_rank = current_rank as i32;
 
         // Top-right to bottom-left diagonal moves
         for i in 1..=i32::min(current_file, 7 - current_rank) {
-            let position = Position::from_tuple((current_file - i, current_rank + i));
+            let position = Square::from_position(((current_file - i) as usize, (current_rank + i) as usize));
             if board.is_empty(position) {
                 valid_moves.push(position);
             } else {
@@ -63,7 +37,7 @@ impl Placable for Bishop {
 
         // Top-left to bottom-right diagonal moves
         for i in 1..=i32::min(7 - current_file, 7 - current_rank) {
-            let position = Position::from_tuple((current_file + i, current_rank + i));
+            let position = Square::from_position(((current_file + i) as usize, (current_rank + i) as usize));
             if board.is_empty(position) {
                 valid_moves.push(position);
             } else {
@@ -73,7 +47,7 @@ impl Placable for Bishop {
 
         // Bottom-left to top-right diagonal moves
         for i in 1..=i32::min(7 - current_file, current_rank) {
-            let position = Position::from_tuple((current_file + i, current_rank - i));
+            let position = Square::from_position(((current_file + i) as usize, (current_rank - i) as usize));
             if board.is_empty(position) {
                 valid_moves.push(position);
             } else {
@@ -83,7 +57,7 @@ impl Placable for Bishop {
 
         // Bottom-right to top-left diagonal moves
         for i in 1..=i32::min(current_file, current_rank) {
-            let position = Position::from_tuple((current_file - i, current_rank - i));
+            let position = Square::from_position(((current_file - i) as usize, (current_rank - i) as usize));
             if board.is_empty(position) {
                 valid_moves.push(position);
             } else {
@@ -95,11 +69,13 @@ impl Placable for Bishop {
         valid_moves
     }
 
-    fn get_position(&self) -> Position {
-        self.position
+    fn get_position(&self, board: &Board) -> Option<Square> {
+        todo!()
     }
 
     fn get_color(&self) -> Color {
-        self.color
+        self.0
     }
+
+
 }
