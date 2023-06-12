@@ -32,7 +32,7 @@ impl Rook {
 }
 
 impl Placable for Rook {
-    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
         let (current_file, current_rank) = coord.into_position();
         let current_file = current_file as usize;
@@ -40,7 +40,11 @@ impl Placable for Rook {
         
         for file in (current_file + 1)..8 {
             let position = Square::from_position((file, current_rank));
-            if !board.is_empty(position) && !is_threaten {
+            if !board.is_empty(position) && !is_threatened {
+                let query = board.get_piece(position).unwrap();
+                let color = query.get_color();
+
+                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
                 break;
             }
             valid_moves.push(position);
@@ -49,7 +53,11 @@ impl Placable for Rook {
         // Horizontal moves to the left
         for file in (0..current_file).rev() {
             let position = Square::from_position((file, current_rank));
-            if !board.is_empty(position) && !is_threaten {
+            if !board.is_empty(position) && !is_threatened {
+                let query = board.get_piece(position).unwrap();
+                let color = query.get_color();
+
+                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
                 break;
             }
             valid_moves.push(position);
@@ -58,7 +66,11 @@ impl Placable for Rook {
         // Vertical moves upwards
         for rank in (current_rank + 1)..8 {
             let position = Square::from_position((current_file, rank));
-            if !board.is_empty(position) && !is_threaten {
+            if !board.is_empty(position) && !is_threatened {
+                let query = board.get_piece(position).unwrap();
+                let color = query.get_color();
+
+                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
                 break;
             }
             valid_moves.push(position);
@@ -67,7 +79,11 @@ impl Placable for Rook {
         // Vertical moves downwards
         for rank in (0..current_rank).rev() {
             let position = Square::from_position((current_file, rank));
-            if !board.is_empty(position) && !is_threaten {
+            if !board.is_empty(position) && !is_threatened {
+                let query = board.get_piece(position).unwrap();
+                let color = query.get_color();
+
+                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
                 break;
             }
             valid_moves.push(position);

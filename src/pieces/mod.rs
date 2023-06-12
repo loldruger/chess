@@ -44,14 +44,14 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
         match self {
-            Piece::P(p) => p.get_valid_moves(board, coord, is_threaten),
-            Piece::B(p) => p.get_valid_moves(board, coord, is_threaten),
-            Piece::N(p) => p.get_valid_moves(board, coord, is_threaten),
-            Piece::R(p) => p.get_valid_moves(board, coord, is_threaten),
-            Piece::Q(p) => p.get_valid_moves(board, coord, is_threaten),
-            Piece::K(p) => p.get_valid_moves(board, coord, is_threaten),
+            Piece::P(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::B(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::N(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::R(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::Q(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::K(p) => p.get_valid_moves(board, coord, is_threatened),
         }
     }
 

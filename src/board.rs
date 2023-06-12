@@ -17,7 +17,6 @@ impl Board {
         match self.square[file][rank] {
             SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
                 self.square[file][rank] = SquareKind::Pieces(piece);
-                println!("spawn. {:p}", &piece);
                 Ok(())
             },
             _ => Err(format!("there is already a piece at {:#?}", coord.into_position())),
@@ -34,13 +33,17 @@ impl Board {
     }
     
     pub fn is_threatened(&mut self, coord: Square, color: Color) -> bool {
-        let (rank, file) = coord.into_position();
-
-        match self.square[file][rank] {
-            SquareKind::Pieces(piece) => piece.is_threatened(),
-            _ => false,
-        }
+        self.square
+            .clone()
+            .iter()
+            .flatten()
+            .any(|square| match square {
+                SquareKind::Pieces(piece) => 
+                    piece.get_color() != color && piece.get_valid_moves(self, coord, true).contains(&coord),
+                _ => false,
+            })
     }
+
     pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
         let (rank, file) = coord.into_position();
 
@@ -74,7 +77,7 @@ impl Board {
             let (rank, file) = i.into_position();
             match self.square[file][rank] {
                 SquareKind::Empty => self.square[file][rank] = SquareKind::Vulnerable(color),
-                SquareKind::Pieces { .. } => (),
+                SquareKind::Pieces(_) => (),
                 _ => (),
             }
         }

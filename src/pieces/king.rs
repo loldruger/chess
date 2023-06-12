@@ -27,7 +27,7 @@ impl King {
 }
 
 impl Placable for King {
-    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, _: bool) -> Vec<Square> {
         let mut valid_move = Vec::new();
 
         let (current_file, current_rank) = coord.into_position();

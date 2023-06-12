@@ -51,6 +51,7 @@ impl GameManager {
         self.board.clear_board();
         self.board.mark_threaten(&self.piece_selected_threaten_moves, self.piece_selected.0.unwrap().get_color());
         self.board.mark_under_attack(&self.piece_selected_valid_moves, self.piece_selected.0.unwrap().get_color());
+
         Ok(())
     }
 
@@ -68,7 +69,6 @@ impl GameManager {
                 self.turn = match self.turn {
                     Color::White => Color::Black,
                     Color::Black => Color::White,
-                    _ => panic!("invalid color"),
                 };
             
                 Ok(())
