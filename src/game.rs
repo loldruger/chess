@@ -33,20 +33,12 @@ impl GameManager {
         self.turn
     }
 
-    pub fn get_selected_piece(&self) -> &Option<Piece> {
-        &self.piece_selected.0
-    }
+    pub fn select_piece(&mut self, coord: Square) -> Result<(), String> {
+        self.piece_selected.0 = self.board.get_piece(coord).cloned(); //todo: process unwrap error
+        self.piece_selected.1 = coord;
 
-    pub fn get_selected_piece_valid_moves(&self) -> &Vec<Square> {
-        &self.piece_selected_valid_moves
-    }
-
-    pub fn select_piece(&mut self, position: Square) -> Result<(), String> {
-        self.piece_selected.0 = self.board.get_piece(position).cloned();
-        self.piece_selected.1 = position;
-
-        self.piece_selected_valid_moves = self.board.get_valid_moves(position, false);
-        self.piece_selected_threaten_moves = self.board.get_valid_moves(position, true);
+        self.piece_selected_valid_moves = self.board.get_valid_moves(coord, false);
+        self.piece_selected_threaten_moves = self.board.get_valid_moves(coord, true);
 
         self.board.clear_board();
         self.board.mark_threaten(&self.piece_selected_threaten_moves, self.piece_selected.0.unwrap().get_color());
@@ -55,15 +47,27 @@ impl GameManager {
         Ok(())
     }
 
-    pub fn move_piece(&mut self, position: Square) ->Result<(), String> {
-        if !self.piece_selected_valid_moves.iter().any(|&x| x == position) {
+    pub fn move_piece(&mut self, coord_to: Square) -> Result<(), String> {
+        if !self.piece_selected_valid_moves.iter().any(|&x| x == coord_to) {
             return Err(format!("invalid move"));
         }
 
-        if let Some(_) = self.piece_selected.0 {
+        if let Some(piece) = self.piece_selected.0 {
             let coord_from = self.piece_selected.1;
+
+            let king = match piece {
+                Piece::K(p) => Some(p),
+                _ => None
+            };
+
+            if king.is_some_and(|_| coord_from == Square::E1 && coord_to == Square::G1) {
+                self.board.move_piece(Square::H1, Square::F1).unwrap();
+            } else if king.is_some_and(|_| coord_from == Square::E1 && coord_to == Square::C1) {
+                self.board.move_piece(Square::A1, Square::D1).unwrap();
+            }
+
             self.board.clear_board();
-            self.board.move_piece(coord_from, position).and_then(|_| {
+            self.board.move_piece(coord_from, coord_to).and_then(|_| {
                 self.piece_selected = (None, Square::None);
                 self.piece_selected_valid_moves = Vec::new();
                 self.turn = match self.turn {

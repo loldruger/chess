@@ -8,12 +8,14 @@ use super::Color;
 pub struct King {
     color: Color,
     is_threatened: bool,
+    is_able_castling: bool,
 }
 impl King {
     pub fn new(color: Color) -> Self {
         Self {
             color,
             is_threatened: false,
+            is_able_castling: true,
         }
     }
 
@@ -23,6 +25,10 @@ impl King {
 
     pub fn set_threatened(&mut self, is_threatened: bool) {
         self.is_threatened = is_threatened;
+    }
+
+    pub fn unable_castling(&mut self) {
+        self.is_able_castling = false;
     }
 }
 
@@ -45,9 +51,49 @@ impl Placable for King {
             let dest_rank = current_rank + rank;
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
+
                 if !board.is_threatened(Square::from_position((dest_file, dest_rank)), self.color) {
                     valid_move.push(Square::from_position((dest_file, dest_rank)));
                 }
+            }
+        }
+
+        if self.is_able_castling {
+            let _self = board.get_piece_mut(coord).unwrap();
+            match _self {
+                crate::pieces::Piece::K(king) => {
+                    king.unable_castling();
+                },
+                _ => {},
+            }
+            
+            let dest_file_right = current_file + 2;
+            let dest_file_left = current_file - 3;
+            let dest_rank = current_rank;
+
+            let query_right = board.get_piece(Square::H1).and_then(|x| {
+                let a = match x {
+                    crate::pieces::Piece::R(rook) => Some(rook).is_some_and(|r|  r.get_color() == self.color ),//&& r.is_able_castling() ),
+                    _ => false,
+                };
+                Some(a)
+            }).or(Some(false)).unwrap();
+
+            let query_left = board.get_piece(Square::A1).and_then(|x| {
+                let a = match x {
+                    crate::pieces::Piece::R(rook) => Some(rook).is_some_and(|r|  r.get_color() == self.color ),//&& r.is_able_castling() ),
+                    _ => false,
+                };
+                Some(a)
+            }).or(Some(false)).unwrap();
+
+            if query_right && !board.is_threatened(Square::from_position((dest_file_right, dest_rank)), self.color) {
+                valid_move.push(Square::from_position((dest_file_right, dest_rank)));
+            }
+
+            if query_left && !board.is_threatened(Square::from_position((dest_file_left, dest_rank)), self.color) {
+                valid_move.push(Square::from_position((dest_file_left + 1, dest_rank)));
+                valid_move.push(Square::from_position((dest_file_left, dest_rank)));
             }
         }
 

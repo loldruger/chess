@@ -1,13 +1,17 @@
+use std::any;
+
 use crate::{moves::{Placable}, pieces::{Color, Piece}, square::{SquareKind, Square}};
 
 pub struct Board {
-    square: [[SquareKind; 8]; 8]
+    square: [[SquareKind; 8]; 8],
+    pieces: Vec<(Piece, Square)>,
 }
 
 impl Board {
     pub fn new() -> Self {
         Self {
-            square: [[SquareKind::Empty; 8]; 8]
+            square: [[SquareKind::Empty; 8]; 8],
+            pieces: Vec::new(),
         }
     }
 
@@ -16,6 +20,8 @@ impl Board {
         let file = file as usize;
         let rank = rank as usize;
 
+        self.pieces.push((piece, coord));
+        
         match self.square[file][rank] {
             SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
                 self.square[file][rank] = SquareKind::Pieces(piece);
@@ -30,6 +36,10 @@ impl Board {
         let file = file as usize;
         let rank = rank as usize;
 
+        if file > 7 || rank > 7 {
+            return false;
+        }
+
         match self.square[file][rank] {
             SquareKind::Pieces(_) => false,
             SquareKind::Empty | SquareKind::Vulnerable(_) | SquareKind::UnderAttack(_) => true,
@@ -37,16 +47,13 @@ impl Board {
     }
     
     pub fn is_threatened(&mut self, coord: Square, color: Color) -> bool {
-        self.square
+        self.pieces
             .clone()
             .iter()
-            .flatten()
-            .any(|square| match square {
-                SquareKind::Pieces(piece) => 
-                    piece.get_color() != color && piece.get_valid_moves(self, coord, true).contains(&coord),
-                _ => false,
-            })
-    }
+            .filter(|&x| x.0.get_color() != color )
+            .flat_map(|x| x.0.get_valid_moves(self, x.1, true),)
+            .any(|x| x == coord)
+        }
 
     pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
         let (rank, file) = coord.into_position();
