@@ -52,9 +52,14 @@ impl Placable for King {
             let dest_rank = current_rank + rank;
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
+                let position = Square::from_position((dest_file, dest_rank));
+                if board.is_empty(position) && !board.is_threatened(position, self.color) {
+                    valid_move.push(position);
+                } else if !board.is_empty(position) {
+                    let query = board.get_piece(position).unwrap();
+                    let color = query.get_color();
 
-                if !board.is_threatened(Square::from_position((dest_file, dest_rank)), self.color) {
-                    valid_move.push(Square::from_position((dest_file, dest_rank)));
+                    board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
                 }
             }
         }

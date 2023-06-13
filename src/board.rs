@@ -27,7 +27,7 @@ impl Board {
                 self.square[file][rank] = SquareKind::Pieces(piece);
                 Ok(())
             },
-            _ => Err(format!("there is already a piece at {:#?}", coord.into_position())),
+            _ => Err(format!("there is already a piece at {coord}")),
         }
     }
     
@@ -53,6 +53,20 @@ impl Board {
             .filter(|&x| x.0.get_color() != color )
             .flat_map(|x| x.0.get_valid_moves(self, x.1, true),)
             .any(|x| x == coord)
+
+            // self.square
+            //     .clone()
+            //     .iter()
+            //     .enumerate()
+            //     .filter(|&x| match x {
+            //         SquareKind::Pieces(piece) => piece.get_color() != color,
+            //         _ => false,
+            //     })
+            //     .flat_map(|x| match x {
+            //         (i, pieces) => piece.get_valid_moves(self, i, true),
+            //         _ => Vec::new(),
+            //     })
+            //     .any(|x| x == coord)
         }
 
     pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
@@ -129,6 +143,7 @@ impl Board {
         match self.square[file_from][rank_from] {
             SquareKind::Pieces(piece) => {
                 self.square[file_from][rank_from] = SquareKind::Empty;
+                self.pieces.iter_mut().find(|x| x.1 == coord_from).unwrap().1 = coord_to;
                 self.spawn(piece, coord_to)?;
 
                 Ok(())
