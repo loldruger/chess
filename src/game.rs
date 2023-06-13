@@ -64,6 +64,8 @@ impl GameManager {
                 self.board.move_piece(Square::H1, Square::F1).unwrap();
             } else if king.is_some_and(|_| coord_from == Square::E1 && coord_to == Square::C1) {
                 self.board.move_piece(Square::A1, Square::D1).unwrap();
+            } else if king.is_some_and(|_| coord_from == Square::E1 && coord_to == Square::B1) {
+                return Err(format!("invalid move"));
             }
 
             self.board.clear_board();

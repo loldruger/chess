@@ -30,6 +30,7 @@ impl King {
     pub fn unable_castling(&mut self) {
         self.is_able_castling = false;
     }
+
 }
 
 impl Placable for King {
@@ -59,14 +60,18 @@ impl Placable for King {
         }
 
         if self.is_able_castling {
-            let _self = board.get_piece_mut(coord).unwrap();
-            match _self {
-                crate::pieces::Piece::K(king) => {
-                    king.unable_castling();
-                },
-                _ => {},
-            }
-            
+            let is_right_path_blocked = board.is_threatened(Square::F1, self.color) ||
+                                                board.is_threatened(Square::G1, self.color) ||
+                                                board.get_piece(Square::F1).is_some() ||
+                                                board.get_piece(Square::G1).is_some();
+
+            let is_left_path_blocked = board.is_threatened(Square::B1, self.color) ||
+                                                board.is_threatened(Square::C1, self.color) ||
+                                                board.is_threatened(Square::D1, self.color) ||
+                                                board.get_piece(Square::B1).is_some() ||
+                                                board.get_piece(Square::C1).is_some() ||
+                                                board.get_piece(Square::D1).is_some();
+
             let dest_file_right = current_file + 2;
             let dest_file_left = current_file - 3;
             let dest_rank = current_rank;
@@ -87,13 +92,21 @@ impl Placable for King {
                 Some(a)
             }).or(Some(false)).unwrap();
 
-            if query_right && !board.is_threatened(Square::from_position((dest_file_right, dest_rank)), self.color) {
+            if !is_right_path_blocked && query_right && !board.is_threatened(Square::from_position((dest_file_right, dest_rank)), self.color) {
                 valid_move.push(Square::from_position((dest_file_right, dest_rank)));
             }
 
-            if query_left && !board.is_threatened(Square::from_position((dest_file_left, dest_rank)), self.color) {
+            if !is_left_path_blocked && query_left && !board.is_threatened(Square::from_position((dest_file_left, dest_rank)), self.color) {
                 valid_move.push(Square::from_position((dest_file_left + 1, dest_rank)));
                 valid_move.push(Square::from_position((dest_file_left, dest_rank)));
+            }
+
+            let _self = board.get_piece_mut(coord).unwrap();
+            match _self {
+                crate::pieces::Piece::K(king) => {
+                    king.unable_castling();
+                },
+                _ => {},
             }
         }
 
