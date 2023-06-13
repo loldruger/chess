@@ -13,6 +13,8 @@ impl Board {
 
     pub fn spawn(&mut self, piece: Piece, coord: Square) -> Result<(), String> {
         let (rank, file) = coord.into_position();
+        let file = file as usize;
+        let rank = rank as usize;
 
         match self.square[file][rank] {
             SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
@@ -25,6 +27,8 @@ impl Board {
     
     pub fn is_empty(&self, coord: Square) -> bool {
         let (rank, file) = coord.into_position();
+        let file = file as usize;
+        let rank = rank as usize;
 
         match self.square[file][rank] {
             SquareKind::Pieces(_) => false,
@@ -46,18 +50,28 @@ impl Board {
 
     pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
         let (rank, file) = coord.into_position();
+        let file = file as usize;
+        let rank = rank as usize;
 
+        if file > 7 || rank > 7 {
+            return None;
+        }
+        
         self.square[file][rank].get_piece()
     }
 
     pub fn get_piece_mut(&mut self, coord: Square) -> Option<&mut Piece> {
         let (rank, file) = coord.into_position();
+        let file = file as usize;
+        let rank = rank as usize;
 
         self.square[file][rank].get_piece_mut()
     }
 
     pub fn get_valid_moves(&mut self, coord: Square, is_threaten: bool) -> Vec<Square> {
         let (rank, file) = coord.into_position();
+        let file = file as usize;
+        let rank = rank as usize;
 
         match self.square[file][rank] {
             SquareKind::Pieces(piece) => piece.get_valid_moves(self, coord, is_threaten),
@@ -68,6 +82,9 @@ impl Board {
     pub fn mark_under_attack(&mut self, coords: &Vec<Square>, color: Color) {
         for i in coords {
             let (rank, file) = i.into_position();
+            let file = file as usize;
+            let rank = rank as usize;
+
             self.square[file][rank] = SquareKind::UnderAttack(color);
         }
     }
@@ -75,6 +92,9 @@ impl Board {
     pub fn mark_threaten(&mut self, coords: &Vec<Square>, color: Color) {
         for i in coords {
             let (rank, file) = i.into_position();
+            let file = file as usize;
+            let rank = rank as usize;
+
             match self.square[file][rank] {
                 SquareKind::Empty => self.square[file][rank] = SquareKind::Vulnerable(color),
                 SquareKind::Pieces(_) => (),
@@ -96,6 +116,8 @@ impl Board {
 
     pub fn move_piece(&mut self, coord_from: Square, coord_to: Square) -> Result<(), String> {
         let (rank_from, file_from) = coord_from.into_position();
+        let file_from = file_from as usize;
+        let rank_from = rank_from as usize;
 
         match self.square[file_from][rank_from] {
             SquareKind::Pieces(piece) => {

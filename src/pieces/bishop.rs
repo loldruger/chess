@@ -40,7 +40,7 @@ impl Placable for Bishop {
 
         // Top-right to bottom-left diagonal moves
         for i in 1..=i32::min(current_file, 7 - current_rank) {
-            let position = Square::from_position(((current_file - i) as usize, (current_rank + i) as usize));
+            let position = Square::from_position(((current_file - i), (current_rank + i)));
             if !board.is_empty(position) && !is_threatening {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();
@@ -53,7 +53,7 @@ impl Placable for Bishop {
 
         // Top-left to bottom-right diagonal moves
         for i in 1..=i32::min(7 - current_file, 7 - current_rank) {
-            let position = Square::from_position(((current_file + i) as usize, (current_rank + i) as usize));
+            let position = Square::from_position(((current_file + i), (current_rank + i)));
             if !board.is_empty(position) && !is_threatening {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();
@@ -66,7 +66,7 @@ impl Placable for Bishop {
 
         // Bottom-left to top-right diagonal moves
         for i in 1..=i32::min(7 - current_file, current_rank) {
-            let position = Square::from_position(((current_file + i) as usize, (current_rank - i) as usize));
+            let position = Square::from_position(((current_file + i), (current_rank - i)));
             if !board.is_empty(position) && !is_threatening {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();
@@ -79,7 +79,7 @@ impl Placable for Bishop {
 
         // Bottom-right to top-left diagonal moves
         for i in 1..=i32::min(current_file, current_rank) {
-            let position = Square::from_position(((current_file - i) as usize, (current_rank - i) as usize));
+            let position = Square::from_position(((current_file - i), (current_rank - i)));
             if !board.is_empty(position) && !is_threatening {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();

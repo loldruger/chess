@@ -45,8 +45,8 @@ impl Placable for King {
             let dest_rank = current_rank + rank;
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
-                if !board.is_threatened(Square::from_position((dest_file as usize, dest_rank as usize)), self.color) {
-                    valid_move.push(Square::from_position((dest_file as usize, dest_rank as usize)));
+                if !board.is_threatened(Square::from_position((dest_file, dest_rank)), self.color) {
+                    valid_move.push(Square::from_position((dest_file, dest_rank)));
                 }
             }
         }

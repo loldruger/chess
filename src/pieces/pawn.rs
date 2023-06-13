@@ -23,7 +23,6 @@ impl Pawn {
         match self.color {
             Color::Black => todo!(),
             Color::White => todo!(),
-            _ => ()
         }
     }
 
@@ -37,54 +36,72 @@ impl Pawn {
 }
 
 impl Placable for Pawn {
-    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threaten: bool) -> Vec<Square> {
-        todo!()
-        // let mut valid_moves = Vec::new();
+    fn get_valid_moves(&self, board: &mut Board, coord: Square, _: bool) -> Vec<Square> {
+        let mut valid_moves = Vec::new();
 
-        // let current_file = self.position.get_file();
-        // let current_rank = self.position.get_rank();
+        let (current_file, current_rank) = coord.into_position();
 
-        // // White pawn moves forward by one rank
-        // match self.color {
-        //     Color::White => {
-        //         let target_rank = current_rank - 1;
-        //         if target_rank >= 0 && board.is_empty(Square::from_position((current_file, target_rank))) {
-        //             valid_moves.push(Square::from_position((current_file, target_rank)));
-        //         }
-        //         // Double move from the starting rank
-        //         if current_rank == 6 && target_rank >= 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
-        //             valid_moves.push(Square::from_position((current_file, target_rank - 1)));
-        //         }
-        //         // Capture diagonally to the left
-        //         if current_file > 0 && target_rank >= 0 && board.is_enemy_piece(Square::from_position((current_file - 1, target_rank)), self.color) {
-        //             valid_moves.push(Square::from_position((current_file - 1, target_rank)));
-        //         }
-        //         // Capture diagonally to the right
-        //         if current_file < 7 && target_rank >= 0 && board.is_enemy_piece(Square::from_position((current_file + 1, target_rank)), self.color) {
-        //             valid_moves.push(Square::from_position((current_file + 1, target_rank)));
-        //         }
-        //     },
-        //     Color::Black => {
-        //         let target_rank = current_rank + 1;
-        //         if target_rank <= 7 && board.is_empty(Square::from_position((current_file, target_rank))) {
-        //             valid_moves.push(Square::from_position((current_file, target_rank)));
-        //         }
-        //         // Double move from the starting rank
-        //         if current_rank == 1 && target_rank <= 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
-        //             valid_moves.push(Square::from_position((current_file, target_rank + 1)));
-        //         }
-        //         // Capture diagonally to the left
-        //         if current_file > 0 && target_rank <= 7 && board.is_enemy_piece(Square::from_position((current_file - 1, target_rank)), self.color) {
-        //             valid_moves.push(Square::from_position((current_file - 1, target_rank)));
-        //         }
-        //         // Capture diagonally to the right
-        //         if current_file < 7 && target_rank <= 7 && board.is_enemy_piece(Square::from_position((current_file + 1, target_rank)), self.color) {
-        //             valid_moves.push(Square::from_position((current_file + 1, target_rank)));
-        //         }
-        //     }
-        // }
+        // White pawn moves forward by one rank
+        match self.color {
+            Color::White => {
+                let target_rank = current_rank - 1;
 
-        // valid_moves
+                let is_enemy_piece1 = board.get_piece(Square::from_position((current_file - 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece2 = board.get_piece(Square::from_position((current_file + 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+
+                if board.is_empty(Square::from_position((current_file, target_rank))) {
+                    valid_moves.push(Square::from_position((current_file, target_rank)));
+                }
+                // Double move from the starting rank
+                if current_rank == 6 && target_rank >= 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
+                    valid_moves.push(Square::from_position((current_file, target_rank - 1)));
+                }
+                // Capture diagonally to the left
+                if current_file > 0 && is_enemy_piece1 {
+                    let query = board.get_piece_mut(Square::from_position((current_file - 1, target_rank))).unwrap();
+
+                    query.set_threatened(true);
+                    // valid_moves.push(Square::from_position((current_file - 1, target_rank)));
+                }
+                // Capture diagonally to the right
+                if current_file < 7 && is_enemy_piece2 {
+                    let query = board.get_piece_mut(Square::from_position((current_file + 1, target_rank))).unwrap();
+  
+                    query.set_threatened(true);
+                    // valid_moves.push(Square::from_position((current_file + 1, target_rank)));
+                }
+            },
+            Color::Black => {
+                let target_rank = current_rank + 1;
+
+                let is_enemy_piece1 = board.get_piece(Square::from_position((current_file - 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece2 = board.get_piece(Square::from_position((current_file + 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+
+                if target_rank <= 7 && board.is_empty(Square::from_position((current_file, target_rank))) {
+                    valid_moves.push(Square::from_position((current_file, target_rank)));
+                }
+                // Double move from the starting rank
+                if current_rank == 1 && target_rank <= 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
+                    valid_moves.push(Square::from_position((current_file, target_rank + 1)));
+                }
+                // Capture diagonally to the left
+                if current_file > 0 && target_rank <= 7 && is_enemy_piece1 {
+                    let query = board.get_piece_mut(Square::from_position((current_file - 1, target_rank))).unwrap();
+
+                    query.set_threatened(true);
+                    // valid_moves.push(Square::from_position((current_file - 1, target_rank)));
+                }
+                // Capture diagonally to the right
+                if current_file < 7 && target_rank <= 7 && is_enemy_piece2 {
+                    let query = board.get_piece_mut(Square::from_position((current_file + 1, target_rank))).unwrap();
+ 
+                    query.set_threatened(true);
+                    // valid_moves.push(Square::from_position((current_file + 1, target_rank)));
+                }
+            }
+        }
+
+        valid_moves
     }
 
     fn get_position(&self, board: &Board) -> Option<Square> {

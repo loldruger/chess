@@ -17,12 +17,12 @@ pub enum Square {
 impl std::fmt::Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let calc = *self as u8;
-        write!(f, "{:?}", ((calc / 8) as usize, (calc % 8) as usize))
+        write!(f, "{:?}", ((calc / 8) as i32, (calc % 8) as i32))
     }
 }
 
 impl Square {
-    pub fn from_position(pos: (usize, usize)) -> Square {
+    pub fn from_position(pos: (i32, i32)) -> Square {
         if pos.0 > 7 || pos.1 > 7 {
             panic!("Invalid position");
         }
@@ -32,10 +32,10 @@ impl Square {
         unsafe { std::mem::transmute(calc as u8) }
     }
 
-    pub fn into_position(self) -> (usize, usize) {
+    pub fn into_position(self) -> (i32, i32) {
         let calc = self as u8;
 
-        ((calc / 8) as usize, (calc % 8) as usize)
+        ((calc / 8) as i32, (calc % 8) as i32)
     }
 }
 

@@ -44,7 +44,7 @@ impl Placable for Knight {
             let target_rank = current_rank as i32 + rank_offset;
     
             if target_file >= 0 && target_file < 8 && target_rank >= 0 && target_rank < 8 {
-                let position = Square::from_position((target_file as usize, target_rank as usize));
+                let position = Square::from_position((target_file, target_rank));
                 if board.is_empty(position) {
                     valid_move.push(position);
                 } else {

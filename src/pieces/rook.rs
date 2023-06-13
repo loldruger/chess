@@ -35,8 +35,8 @@ impl Placable for Rook {
     fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
         let (current_file, current_rank) = coord.into_position();
-        let current_file = current_file as usize;
-        let current_rank = current_rank as usize;
+        let current_file = current_file as i32;
+        let current_rank = current_rank as i32;
         
         for file in (current_file + 1)..8 {
             let position = Square::from_position((file, current_rank));
