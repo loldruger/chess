@@ -45,11 +45,15 @@ impl GameManager {
         if self.piece_selected.0.is_none() {
             return Err(format!("no piece selected"));
         }
+
+        if self.piece_selected.0.unwrap().get_color() != self.turn {
+            return Err(format!("not your turn"));
+        }
+
         self.piece_selected.1 = coord;
 
         self.piece_selected_valid_moves = self.board.get_valid_moves(coord, false);
         self.piece_selected_threaten_moves = self.board.get_valid_moves(coord, true);
-
 
         self.board.clear_board();
         self.board.mark_threaten(&self.piece_selected_threaten_moves, self.piece_selected.0.unwrap().get_color());
@@ -59,8 +63,12 @@ impl GameManager {
     }
 
     pub fn move_piece(&mut self, coord_to: Square) -> Result<(), String> {
-        if !self.piece_selected_valid_moves.iter().any(|&x| x == coord_to) {
-            return Err(format!("invalid move"));
+        if self.board.get_piece(coord_to).is_some_and(|x| x.is_threatened()) {
+            self.board.get_piece_mut(coord_to).unwrap().set_position(Square::None);
+        } else {
+            if !self.piece_selected_valid_moves.iter().any(|&x| x == coord_to) {
+                return Err(format!("invalid move"));
+            }
         }
 
         if let Some(piece) = self.piece_selected.0 {

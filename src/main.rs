@@ -16,7 +16,7 @@ fn main() {
     // game.get_board_mut().spawn(Piece::P(Pawn::new(Color::White)), Square::A8).ok();
     // game.get_board_mut().spawn(Piece::P(Pawn::new(Color::White)), Square::A3).ok();
 
-    game.get_board_mut().spawn(Piece::R(Rook::new(Color::Black)), Square::A1).ok();
+    game.get_board_mut().spawn(Piece::R(Rook::new(Color::White)), Square::A1).ok();
     game.get_board_mut().spawn(Piece::R(Rook::new(Color::Black)), Square::H1).ok();
     // game.get_board_mut().spawn(Piece::B(Bishop::new(Color::White)), Square::C4).ok();
     game.get_board_mut().spawn(Piece::N(Knight::new(Color::White)), Square::F3).ok();
@@ -66,7 +66,7 @@ fn main() {
                 break;
             }
         }
-        // game.reset_threaten();
+        game.reset_threaten();
         user_input.clear();
         println!("{}", game.get_board());
     }
