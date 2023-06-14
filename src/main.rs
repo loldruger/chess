@@ -46,30 +46,29 @@ fn main() {
             continue;
         }
 
-        game.select_piece(coord.unwrap()).and_then(|_| {
+        if game.select_piece(coord.unwrap()).is_err() {
+            println!("invalid piece");
             user_input.clear();
-            println!("{}", game.get_board());
+            continue;
+        }
 
-            loop {
-                println!("move the piece to: ");
-                stdin.read_line(&mut user_input).unwrap();
-                if game.move_piece(Square::from_str(&user_input[0..2]).unwrap()).is_err() {
-                    println!("invalid move");
-                    user_input.clear();
-                    continue;
-                } else {
-                    break;
-                }
+        user_input.clear();
+        println!("{}", game.get_board());
+
+        loop {
+            println!("move the piece to: ");
+            stdin.read_line(&mut user_input).unwrap();
+            if game.move_piece(Square::from_str(&user_input[0..2]).unwrap()).is_err() {
+                println!("invalid move");
+                user_input.clear();
+                continue;
+            } else {
+                break;
             }
-            game.reset_threaten();
-            user_input.clear();
-            println!("{}", game.get_board());
-            Ok(())
-        }).or_else(|x| {
-            println!("{}", x);
-            user_input.clear();
-            Err(())
-        }).ok();
+        }
+        // game.reset_threaten();
+        user_input.clear();
+        println!("{}", game.get_board());
     }
     
 }

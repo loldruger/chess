@@ -36,7 +36,11 @@ impl Square {
         let mut chars = s.chars();
 
         let file = chars.next().unwrap().to_ascii_uppercase() as u8;
-        let rank = chars.next().unwrap().to_digit(10).unwrap() as u8;
+        let rank = chars.next().unwrap().to_digit(10);
+        if rank.is_none() {
+            return None;
+        }
+        let rank = rank.unwrap() as u8;
 
         if file < b'A' || file > b'H' || rank < 1 || rank > 8 {
             return None;

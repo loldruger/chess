@@ -41,11 +41,15 @@ impl GameManager {
     }
 
     pub fn select_piece(&mut self, coord: Square) -> Result<(), String> {
-        self.piece_selected.0 = self.board.get_piece(coord).cloned(); //todo: process unwrap error
+        self.piece_selected.0 = self.board.get_piece(coord).cloned();
+        if self.piece_selected.0.is_none() {
+            return Err(format!("no piece selected"));
+        }
         self.piece_selected.1 = coord;
 
         self.piece_selected_valid_moves = self.board.get_valid_moves(coord, false);
         self.piece_selected_threaten_moves = self.board.get_valid_moves(coord, true);
+
 
         self.board.clear_board();
         self.board.mark_threaten(&self.piece_selected_threaten_moves, self.piece_selected.0.unwrap().get_color());
