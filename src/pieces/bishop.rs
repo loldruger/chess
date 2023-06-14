@@ -7,18 +7,16 @@ use super::Color;
 #[derive(Clone, Copy, PartialEq)]
 pub struct Bishop {
     color: Color,
+    coord: Square,
     is_threatened: bool,
 }
 impl Bishop {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
             is_threatened: false,
         }
-    }
-
-    pub fn get_color(&self) -> Color {
-        self.color
     }
 
     pub fn is_threatened(&self) -> bool {
@@ -31,6 +29,10 @@ impl Bishop {
 }
 
 impl Placable for Bishop {
+    fn set_position(&mut self, position: Square) {
+        self.coord = position;
+    }
+
     fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatening: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
 
@@ -94,8 +96,8 @@ impl Placable for Bishop {
         valid_moves
     }
 
-    fn get_position(&self, board: &Board) -> Option<Square> {
-        todo!()
+    fn get_position(&self) -> Square {
+        self.coord
     }
 
     fn get_color(&self) -> Color {

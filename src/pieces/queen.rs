@@ -7,6 +7,7 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct Queen {
     color: Color,
+    coord: Square,
     is_threatened: bool,
 }
 
@@ -14,6 +15,7 @@ impl Queen {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
             is_threatened: false,
         }
     }
@@ -28,6 +30,10 @@ impl Queen {
 }
 
 impl Placable for Queen {
+    fn set_position(&mut self, position: Square) {
+        self.coord = position;
+    }
+
     fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
         
@@ -141,9 +147,8 @@ impl Placable for Queen {
         valid_moves
     }
 
-    fn get_position(&self, board: &Board) -> Option<Square> {
-        // self.position
-        todo!()
+    fn get_position(&self) -> Square {
+        self.coord
     }
 
     fn get_color(&self) -> Color {

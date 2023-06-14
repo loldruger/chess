@@ -4,6 +4,8 @@ mod moves;
 mod game;
 mod square;
 
+use std::io;
+
 use pieces::{Color, Pawn, Rook, Bishop, Queen, King};
 use crate::{pieces::{Knight, Piece}, square::Square};
 
@@ -17,34 +19,57 @@ fn main() {
     game.get_board_mut().spawn(Piece::R(Rook::new(Color::Black)), Square::A1).ok();
     game.get_board_mut().spawn(Piece::R(Rook::new(Color::Black)), Square::H1).ok();
     // game.get_board_mut().spawn(Piece::B(Bishop::new(Color::White)), Square::C4).ok();
-    game.get_board_mut().spawn(Piece::N(Knight::new(Color::Black)), Square::F2).ok();
-    game.get_board_mut().spawn(Piece::Q(Queen::new(Color::Black)), Square::F1).ok();
+    game.get_board_mut().spawn(Piece::N(Knight::new(Color::White)), Square::F3).ok();
+    // game.get_board_mut().spawn(Piece::Q(Queen::new(Color::Black)), Square::F1).ok();
     game.get_board_mut().spawn(Piece::K(King::new(Color::Black)), Square::E1).ok();
 
     // bishop.get_position(game.get_board());
     println!("{}", game.get_board());
 
-    game.select_piece(Square::E1).and_then(|_| {
-        game.move_piece(Square::C1).ok();
-        
-        Ok(())
-    }).ok();
+    let mut user_input = String::new();
+    let stdin = io::stdin();
 
-    // game.select_piece(Square::D1).and_then(|_| {
-    //     game.move_piece(Square::E1).ok();
-    //     Ok(())
-    // }).ok();
+    loop {
+        if game.get_turn() == Color::White {
+            print!("White's turn: ");
+        } else {
+            print!("Black's turn: ");
+        }
 
-    // game.select_piece(Square::E1).and_then(|_| {
+        println!("Select a piece at: ");
+        stdin.read_line(&mut user_input).unwrap();
+        let coord = Square::from_str(&user_input[0..2]);
 
-    //     Ok(())
-    // }).ok();
-    // game.select_piece(Square::D4).and_then(|_| {
-    //     // game.move_piece(Square::B3).ok();
+        if coord.is_none() {
+            println!("invalid input");
+            user_input.clear();
+            continue;
+        }
 
-    //     Ok(())
-    // }).ok();
+        game.select_piece(coord.unwrap()).and_then(|_| {
+            user_input.clear();
+            println!("{}", game.get_board());
 
-    println!("{}", game.get_board());
+            loop {
+                println!("move the piece to: ");
+                stdin.read_line(&mut user_input).unwrap();
+                if game.move_piece(Square::from_str(&user_input[0..2]).unwrap()).is_err() {
+                    println!("invalid move");
+                    user_input.clear();
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            game.reset_threaten();
+            user_input.clear();
+            println!("{}", game.get_board());
+            Ok(())
+        }).or_else(|x| {
+            println!("{}", x);
+            user_input.clear();
+            Err(())
+        }).ok();
+    }
     
 }

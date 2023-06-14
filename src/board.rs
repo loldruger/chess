@@ -1,10 +1,8 @@
-use std::any;
-
 use crate::{moves::{Placable}, pieces::{Color, Piece}, square::{SquareKind, Square}};
 
 pub struct Board {
     square: [[SquareKind; 8]; 8],
-    pieces: Vec<(Piece, Square)>,
+    pieces: Vec<Piece>,
 }
 
 impl Board {
@@ -15,12 +13,13 @@ impl Board {
         }
     }
 
-    pub fn spawn(&mut self, piece: Piece, coord: Square) -> Result<(), String> {
+    pub fn spawn(&mut self, mut piece: Piece, coord: Square) -> Result<(), String> {
         let (rank, file) = coord.into_position();
         let file = file as usize;
         let rank = rank as usize;
 
-        self.pieces.push((piece, coord));
+        piece.set_position(coord);
+        self.pieces.push(piece);
         
         match self.square[file][rank] {
             SquareKind::Empty | SquareKind::UnderAttack(_) | SquareKind::Vulnerable(_) => {
@@ -50,43 +49,21 @@ impl Board {
         self.pieces
             .clone()
             .iter()
-            .filter(|&x| x.0.get_color() != color )
-            .flat_map(|x| x.0.get_valid_moves(self, x.1, true),)
+            .filter(|&x| x.get_color() != color )
+            .flat_map(|x| x.get_valid_moves(self, x.get_position(), true),)
             .any(|x| x == coord)
-
-            // self.square
-            //     .clone()
-            //     .iter()
-            //     .enumerate()
-            //     .filter(|&x| match x {
-            //         SquareKind::Pieces(piece) => piece.get_color() != color,
-            //         _ => false,
-            //     })
-            //     .flat_map(|x| match x {
-            //         (i, pieces) => piece.get_valid_moves(self, i, true),
-            //         _ => Vec::new(),
-            //     })
-            //     .any(|x| x == coord)
         }
 
     pub fn get_piece(&self, coord: Square) -> Option<&Piece> {
-        let (rank, file) = coord.into_position();
-        let file = file as usize;
-        let rank = rank as usize;
-
-        if file > 7 || rank > 7 {
-            return None;
-        }
-        
-        self.square[file][rank].get_piece()
+        self.pieces
+            .iter()
+            .find(|x| x.get_position() == coord)
     }
 
     pub fn get_piece_mut(&mut self, coord: Square) -> Option<&mut Piece> {
-        let (rank, file) = coord.into_position();
-        let file = file as usize;
-        let rank = rank as usize;
-
-        self.square[file][rank].get_piece_mut()
+        self.pieces
+            .iter_mut()
+            .find(|x| x.get_position() == coord)
     }
 
     pub fn get_valid_moves(&mut self, coord: Square, is_threaten: bool) -> Vec<Square> {
@@ -137,18 +114,28 @@ impl Board {
 
     pub fn move_piece(&mut self, coord_from: Square, coord_to: Square) -> Result<(), String> {
         let (rank_from, file_from) = coord_from.into_position();
+        let (rank_to, file_to) = coord_to.into_position();
+
         let file_from = file_from as usize;
         let rank_from = rank_from as usize;
+        let file_to = file_to as usize;
+        let rank_to = rank_to as usize;
 
         match self.square[file_from][rank_from] {
             SquareKind::Pieces(piece) => {
                 self.square[file_from][rank_from] = SquareKind::Empty;
-                self.pieces.iter_mut().find(|x| x.1 == coord_from).unwrap().1 = coord_to;
-                self.spawn(piece, coord_to)?;
+                self.square[file_to][rank_to] = SquareKind::Pieces(piece);
+                self.pieces.iter_mut().find(|x| x.get_position() == coord_from).unwrap().set_position(coord_to);
 
                 Ok(())
             },
             _ => Err(format!("cannot find any pieces at {coord_from}")),
+        }
+    }
+
+    pub fn reset_threaten(&mut self) {
+        for piece in self.pieces.iter_mut() {
+            piece.set_threatened(false);
         }
     }
 }

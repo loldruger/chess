@@ -33,6 +33,13 @@ impl GameManager {
         self.turn
     }
 
+    pub fn opposite_turn(&mut self) {
+        match self.turn {
+            Color::White => self.turn = Color::Black,
+            Color::Black => self.turn = Color::White,
+        }
+    }
+
     pub fn select_piece(&mut self, coord: Square) -> Result<(), String> {
         self.piece_selected.0 = self.board.get_piece(coord).cloned(); //todo: process unwrap error
         self.piece_selected.1 = coord;
@@ -86,6 +93,9 @@ impl GameManager {
         }
     }
 
+    pub fn reset_threaten(&mut self) {
+        self.board.reset_threaten();
+    }
 }
 
 

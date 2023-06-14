@@ -7,6 +7,7 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct King {
     color: Color,
+    coord: Square,
     is_threatened: bool,
     is_able_castling: bool,
 }
@@ -14,6 +15,7 @@ impl King {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
             is_threatened: false,
             is_able_castling: true,
         }
@@ -34,6 +36,10 @@ impl King {
 }
 
 impl Placable for King {
+    fn set_position(&mut self, position: Square) {
+        self.coord = position;
+    }
+
     fn get_valid_moves(&self, board: &mut Board, coord: Square, _: bool) -> Vec<Square> {
         let mut valid_move = Vec::new();
 
@@ -64,7 +70,7 @@ impl Placable for King {
             }
         }
 
-        if self.is_able_castling {
+        if self.is_able_castling && !self.is_threatened {
             let is_right_path_blocked = board.is_threatened(Square::F1, self.color) ||
                                                 board.is_threatened(Square::G1, self.color) ||
                                                 board.get_piece(Square::F1).is_some() ||
@@ -119,8 +125,8 @@ impl Placable for King {
     }
 
 
-    fn get_position(&self, board: &Board) -> Option<Square> {
-        todo!()
+    fn get_position(&self) -> Square {
+        self.coord
     }
 
     fn get_color(&self) -> Color {

@@ -7,6 +7,7 @@ use super::{Color, Rook, Bishop, Knight, Queen};
 #[derive(Clone, Copy)]
 pub struct Pawn {
     color: Color,
+    coord: Square,
     is_threatened: bool,
 }
 
@@ -14,6 +15,7 @@ impl Pawn {
     pub fn new(color: Color) -> Self { 
         Self {
             color,
+            coord: Square::None,
             is_threatened: false,
         }
     }
@@ -36,6 +38,10 @@ impl Pawn {
 }
 
 impl Placable for Pawn {
+    fn set_position(&mut self, position: Square) {
+        self.coord = position;
+    }
+
     fn get_valid_moves(&self, board: &mut Board, coord: Square, _: bool) -> Vec<Square> {
         let mut valid_moves = Vec::new();
 
@@ -104,8 +110,8 @@ impl Placable for Pawn {
         valid_moves
     }
 
-    fn get_position(&self, board: &Board) -> Option<Square> {
-        todo!()
+    fn get_position(&self) -> Square {
+        self.coord
     }
 
     fn get_color(&self) -> Color {

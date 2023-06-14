@@ -7,12 +7,14 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct Knight {
     color: Color,
+    coord: Square,
     is_threatened: bool,
 }
 impl Knight {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
             is_threatened: false,
         }
     }
@@ -27,6 +29,10 @@ impl Knight {
 }
 
 impl Placable for Knight {
+    fn set_position(&mut self, position: Square) {
+        self.coord = position;
+    }
+
     fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatening: bool) -> Vec<Square> {
         let mut valid_move = Vec::new();
 
@@ -59,8 +65,8 @@ impl Placable for Knight {
         valid_move
     }
 
-    fn get_position(&self, board: &Board) -> Option<Square> {
-        todo!()
+    fn get_position(&self) -> Square {
+        self.coord
     }
 
     fn get_color(&self) -> Color {

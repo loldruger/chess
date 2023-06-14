@@ -55,6 +55,17 @@ impl Piece {
         }
     }
 
+    pub fn get_position(&self) -> Square {
+        match self {
+            Piece::P(p) => p.get_position(),
+            Piece::B(p) => p.get_position(),
+            Piece::N(p) => p.get_position(),
+            Piece::R(p) => p.get_position(),
+            Piece::Q(p) => p.get_position(),
+            Piece::K(p) => p.get_position(),
+        }
+    }
+
     pub fn is_threatened(&self) -> bool {
         match self {
             Piece::P(p) => p.is_threatened(),
@@ -74,6 +85,17 @@ impl Piece {
             Piece::R(p) => p.set_threatened(is_threatened),
             Piece::Q(p) => p.set_threatened(is_threatened),
             Piece::K(p) => p.set_threatened(is_threatened),
+        }
+    }
+
+    pub fn set_position(&mut self, position: Square) {
+        match self {
+            Piece::P(p) => p.set_position(position),
+            Piece::B(p) => p.set_position(position),
+            Piece::N(p) => p.set_position(position),
+            Piece::R(p) => p.set_position(position),
+            Piece::Q(p) => p.set_position(position),
+            Piece::K(p) => p.set_position(position),
         }
     }
 }

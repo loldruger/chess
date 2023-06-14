@@ -32,6 +32,21 @@ impl Square {
         unsafe { std::mem::transmute(calc as u8) }
     }
 
+    pub fn from_str(s: &str) -> Option<Square> {
+        let mut chars = s.chars();
+
+        let file = chars.next().unwrap().to_ascii_uppercase() as u8;
+        let rank = chars.next().unwrap().to_digit(10).unwrap() as u8;
+
+        if file < b'A' || file > b'H' || rank < 1 || rank > 8 {
+            return None;
+        }
+
+        let calc = (file - b'A') * 8 + (rank - 1);
+
+        Some(unsafe { std::mem::transmute(calc as u8) })
+    }
+    
     pub fn into_position(self) -> (i32, i32) {
         let calc = self as u8;
 
