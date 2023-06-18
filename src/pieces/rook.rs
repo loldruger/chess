@@ -1,6 +1,4 @@
-use crate::{
-    moves::{Placable}, board::Board, square::Square,
-};
+use crate::{square::Square, board::Board};
 
 use super::Color;
 
@@ -8,7 +6,6 @@ use super::Color;
 pub struct Rook {
     color: Color,
     coord: Square,
-    is_threatened: bool,
 }
 
 impl Rook {
@@ -16,89 +13,68 @@ impl Rook {
         Self {
             color,
             coord: Square::None,
-            is_threatened: false,
         }
     }
 
-    pub fn is_threatened(&self) -> bool {
-        self.is_threatened
+    pub fn get_color(&self) -> Color {
+        self.color
     }
 
-    pub fn set_threatened(&mut self, is_threatened: bool) {
-        self.is_threatened = is_threatened;
-    }
-}
-
-impl Placable for Rook {
-    fn set_position(&mut self, position: Square) {
-        self.coord = position;
-    }
-
-    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, bool)> {
         let mut valid_moves = Vec::new();
-        let (current_file, current_rank) = coord.into_position();
-        let current_file = current_file as i32;
-        let current_rank = current_rank as i32;
-        
-        for file in (current_file + 1)..8 {
-            let position = Square::from_position((file, current_rank));
-            if !board.is_empty(position) && !is_threatened {
+        let current_file = coord_from.get_file();
+        let current_rank = coord_from.get_rank();
+
+        let mut a = 0;
+        let mut b = 0;
+        let mut c = 0;
+        let mut d = 0;
+
+        let mut lay = |file, rank, pierce_counter: &mut u32| {
+            let position = Square::from_position((rank, file));
+
+            if !board.is_empty(position) {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();
 
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
+                if color != self.color {
+                    valid_moves.push((position, *pierce_counter > 0));
+                }
+                *pierce_counter += 1;
+            } else {
+                if *pierce_counter < 2 {
+                    valid_moves.push((position, *pierce_counter > 0));
+                }
             }
-            valid_moves.push(position);
+        };
+
+        for file in (current_file + 1)..8 {
+            lay(file, current_rank, &mut a);
         }
     
         // Horizontal moves to the left
         for file in (0..current_file).rev() {
-            let position = Square::from_position((file, current_rank));
-            if !board.is_empty(position) && !is_threatened {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(file, current_rank, &mut b);
         }
     
         // Vertical moves upwards
         for rank in (current_rank + 1)..8 {
-            let position = Square::from_position((current_file, rank));
-            if !board.is_empty(position) && !is_threatened {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file, rank, &mut c);
         }
     
         // Vertical moves downwards
         for rank in (0..current_rank).rev() {
-            let position = Square::from_position((current_file, rank));
-            if !board.is_empty(position) && !is_threatened {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file, rank, &mut d);
         }
 
         valid_moves
     }
 
-    fn get_position(&self) -> Square {
+    pub fn get_coord(&self) -> Square {
         self.coord
     }
 
-    fn get_color(&self) -> Color {
-        self.color
+    pub fn set_coord(&mut self, coord: Square) {
+        self.coord = coord;
     }
 }

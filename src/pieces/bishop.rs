@@ -1,108 +1,77 @@
-use crate::{
-    moves::Placable, board::Board, square::Square,
-};
+use crate::{square::Square, board::Board};
 
 use super::Color;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy)]
 pub struct Bishop {
     color: Color,
     coord: Square,
-    is_threatened: bool,
 }
+
 impl Bishop {
     pub fn new(color: Color) -> Self {
         Self {
             color,
             coord: Square::None,
-            is_threatened: false,
         }
     }
 
-    pub fn is_threatened(&self) -> bool {
-        self.is_threatened
+    pub fn get_color(&self) -> Color {
+        self.color
     }
 
-    pub fn set_threatened(&mut self, is_threatened: bool) {
-        self.is_threatened = is_threatened;
-    }
-}
-
-impl Placable for Bishop {
-    fn set_position(&mut self, position: Square) {
-        self.coord = position;
-    }
-
-    fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatening: bool) -> Vec<Square> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, bool)> {
         let mut valid_moves = Vec::new();
+        let current_file = coord_from.get_file();
+        let current_rank = coord_from.get_rank();
+        
+        let mut a = 0;
+        let mut b = 0;
+        let mut c = 0;
+        let mut d = 0;
 
-        let (current_file, current_rank) = coord.into_position();
-        let current_file = current_file as i32;
-        let current_rank = current_rank as i32;
+        let mut lay = |file, rank, pierce_counter: &mut u32| {
+            let position = Square::from_position((rank, file));
 
-        // Top-right to bottom-left diagonal moves
+            if !board.is_empty(position) {
+                let query = board.get_piece(position).unwrap();
+                let color = query.get_color();
+
+                if color != self.color {
+                    valid_moves.push((position, *pierce_counter > 0));
+                }
+                *pierce_counter += 1;
+            } else {
+                if *pierce_counter < 2 {
+                    valid_moves.push((position, *pierce_counter > 0));
+                }
+            }
+        };
+
         for i in 1..=i32::min(current_file, 7 - current_rank) {
-            let position = Square::from_position(((current_file - i), (current_rank + i)));
-            if !board.is_empty(position) && !is_threatening {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file - i, current_rank + i, &mut a);
         }
 
-        // Top-left to bottom-right diagonal moves
         for i in 1..=i32::min(7 - current_file, 7 - current_rank) {
-            let position = Square::from_position(((current_file + i), (current_rank + i)));
-            if !board.is_empty(position) && !is_threatening {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file + i, current_rank + i, &mut b);
         }
 
-        // Bottom-left to top-right diagonal moves
         for i in 1..=i32::min(7 - current_file, current_rank) {
-            let position = Square::from_position(((current_file + i), (current_rank - i)));
-            if !board.is_empty(position) && !is_threatening {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file + i, current_rank - i, &mut c);
         }
 
-        // Bottom-right to top-left diagonal moves
         for i in 1..=i32::min(current_file, current_rank) {
-            let position = Square::from_position(((current_file - i), (current_rank - i)));
-            if !board.is_empty(position) && !is_threatening {
-                let query = board.get_piece(position).unwrap();
-                let color = query.get_color();
-
-                board.get_piece_mut(position).unwrap().set_threatened(color != self.color);
-                break;
-            }
-            valid_moves.push(position);
+            lay(current_file - i, current_rank - i, &mut d);
         }
-
 
         valid_moves
     }
 
-    fn get_position(&self) -> Square {
+    pub fn get_coord(&self) -> Square {
         self.coord
     }
 
-    fn get_color(&self) -> Color {
-        self.color
+    pub fn set_coord(&mut self, coord: Square) {
+        self.coord = coord;
     }
-
-
 }

@@ -1,38 +1,67 @@
-pub mod pawn;
-pub mod rook;
-pub mod bishop;
-pub mod knight;
-pub mod queen;
-pub mod king;
+mod pawn;
+mod knight;
+mod bishop;
+mod rook;
+mod queen;
+mod king;
 
 pub use pawn::Pawn;
-pub use rook::Rook;
-pub use bishop::Bishop;
 pub use knight::Knight;
+pub use bishop::Bishop;
+pub use rook::Rook;
 pub use queen::Queen;
 pub use king::King;
 
-use crate::{moves::Placable, board::Board, square::Square};
+use crate::{board::Board, square::Square};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Color {
-    Black,
-    White
+    White,
+    Black
 }
 
-
+impl Color {
+    pub fn opposite(&self) -> Color {
+        match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        }
+    }
+}
 
 #[derive(Clone, Copy)]
 pub enum Piece {
     P(Pawn),
-    B(Bishop),
     N(Knight),
+    B(Bishop),
     R(Rook),
     Q(Queen),
-    K(King)
+    K(King),
 }
 
 impl Piece {
+    pub fn set_coord(&mut self, coord: Square) {
+        match self {
+            Piece::P(p) => p.set_coord(coord),
+            Piece::B(p) => p.set_coord(coord),
+            Piece::N(p) => p.set_coord(coord),
+            Piece::R(p) => p.set_coord(coord),
+            Piece::Q(p) => p.set_coord(coord),
+            Piece::K(p) => p.set_coord(coord),
+        }
+    }
+
+    pub fn get_coord(&self) -> Square {
+        match self {
+            Piece::P(p) => p.get_coord(),
+            Piece::B(p) => p.get_coord(),
+            Piece::N(p) => p.get_coord(),
+            Piece::R(p) => p.get_coord(),
+            Piece::Q(p) => p.get_coord(),
+            Piece::K(p) => p.get_coord(),
+        }
+    }
+
     pub fn get_color(&self) -> Color {
         match self {
             Piece::P(p) => p.get_color(),
@@ -44,58 +73,17 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord: Square, is_threatened: bool) -> Vec<Square> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord: Square) -> Vec<(Square, bool)> {
         match self {
-            Piece::P(p) => p.get_valid_moves(board, coord, is_threatened),
-            Piece::B(p) => p.get_valid_moves(board, coord, is_threatened),
-            Piece::N(p) => p.get_valid_moves(board, coord, is_threatened),
-            Piece::R(p) => p.get_valid_moves(board, coord, is_threatened),
-            Piece::Q(p) => p.get_valid_moves(board, coord, is_threatened),
-            Piece::K(p) => p.get_valid_moves(board, coord, is_threatened),
+            Piece::P(p) => p.get_valid_moves(board, coord),
+            Piece::B(p) => p.get_valid_moves(board, coord),
+            Piece::N(p) => p.get_valid_moves(board, coord),
+            Piece::R(p) => p.get_valid_moves(board, coord),
+            Piece::Q(p) => p.get_valid_moves(board, coord),
+            Piece::K(p) => p.get_valid_moves(board, coord),
         }
     }
 
-    pub fn get_position(&self) -> Square {
-        match self {
-            Piece::P(p) => p.get_position(),
-            Piece::B(p) => p.get_position(),
-            Piece::N(p) => p.get_position(),
-            Piece::R(p) => p.get_position(),
-            Piece::Q(p) => p.get_position(),
-            Piece::K(p) => p.get_position(),
-        }
-    }
 
-    pub fn is_threatened(&self) -> bool {
-        match self {
-            Piece::P(p) => p.is_threatened(),
-            Piece::B(p) => p.is_threatened(),
-            Piece::N(p) => p.is_threatened(),
-            Piece::R(p) => p.is_threatened(),
-            Piece::Q(p) => p.is_threatened(),
-            Piece::K(p) => p.is_threatened(),
-        }
-    }
 
-    pub fn set_threatened(&mut self, is_threatened: bool) {
-        match self {
-            Piece::P(p) => p.set_threatened(is_threatened),
-            Piece::B(p) => p.set_threatened(is_threatened),
-            Piece::N(p) => p.set_threatened(is_threatened),
-            Piece::R(p) => p.set_threatened(is_threatened),
-            Piece::Q(p) => p.set_threatened(is_threatened),
-            Piece::K(p) => p.set_threatened(is_threatened),
-        }
-    }
-
-    pub fn set_position(&mut self, position: Square) {
-        match self {
-            Piece::P(p) => p.set_position(position),
-            Piece::B(p) => p.set_position(position),
-            Piece::N(p) => p.set_position(position),
-            Piece::R(p) => p.set_position(position),
-            Piece::Q(p) => p.set_position(position),
-            Piece::K(p) => p.set_position(position),
-        }
-    }
 }

@@ -56,29 +56,69 @@ impl Square {
 
         ((calc / 8) as i32, (calc % 8) as i32)
     }
+
+    pub fn get_rank(self) -> i32 {
+        let calc = self as u8;
+
+        (calc / 8) as i32
+    }
+
+    pub fn get_file(self) -> i32 {
+        let calc = self as u8;
+
+        (calc % 8) as i32
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum SquareStatus {
+    Normal,
+    UnderAttackActive {by_color: Color},
+    VulnerableActive {by_color: Color},
+    VulnerablePassive {by_color: Color},
 }
 
 #[derive(Clone, Copy)]
 pub enum SquareKind {
-    Empty,
-    UnderAttack(Color),
-    Vulnerable(Color),
-    Pieces(Piece)
+    Empty(SquareStatus),
+    Piece(Piece, SquareStatus)
 }
 
 impl SquareKind {
     pub fn get_piece(&self) -> Option<&Piece> {
         match self {
-            SquareKind::Pieces(piece) => Some(piece),
+            SquareKind::Piece(piece, _) => Some(piece),
             _ => None,
         }
     }
 
     pub fn get_piece_mut(&mut self) -> Option<&mut Piece> {
         match self {
-            SquareKind::Pieces(ref mut piece) => Some(piece),
+            SquareKind::Piece(ref mut piece, _) => Some(piece),
             _ => None,
         }
     }
 
+    pub fn is_under_attack(&self, by_color: Color) -> bool {
+        match self {
+            SquareKind::Empty(SquareStatus::UnderAttackActive {by_color}) => true,
+            SquareKind::Piece(_, SquareStatus::UnderAttackActive {by_color}) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_vulnerable(&self, by_color: Color) -> bool {
+        match self {
+            SquareKind::Empty(SquareStatus::VulnerableActive {by_color}) => true,
+            SquareKind::Piece(_, SquareStatus::VulnerableActive {by_color}) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            SquareKind::Empty(_) => true,
+            _ => false,
+        }
+    }
 }
