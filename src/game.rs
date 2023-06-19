@@ -60,6 +60,7 @@ impl GameManager {
             .any(|i| {
                 (*i).0 == coord_to && match (*i).1 {
                     CaptureStatus::Capturable => true,
+                    CaptureStatus::Movable => true,
                     _ => false,
                 }
         });

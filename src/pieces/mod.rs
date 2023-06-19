@@ -18,6 +18,7 @@ pub enum CaptureStatus {
     Capturable,
     CapturablePassibly,
     NotCapturable,
+    Movable
 }
 
 #[derive(Copy, Clone, PartialEq)]

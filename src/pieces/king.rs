@@ -58,7 +58,7 @@ impl King {
                 match x.1 {
                     CaptureStatus::Capturable => x.0,
                     CaptureStatus::CapturablePassibly => x.0,
-                    CaptureStatus::NotCapturable => Square::None,
+                    _ => Square::None,
                 }
             })
             .collect::<Vec<Square>>();
