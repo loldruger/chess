@@ -129,8 +129,8 @@ impl Board {
         let file = coord.get_file() as usize;
 
         self.square[file][rank] = match self.square[file][rank] {
-            SquareKind::Empty(_) => SquareKind::Empty(SquareStatus::Captureable {by_color}),
-            SquareKind::Piece(piece, _) => SquareKind::Piece(piece, SquareStatus::Captureable {by_color}),
+            SquareKind::Empty(_) => SquareKind::Empty(SquareStatus::Capturable {by_color}),
+            SquareKind::Piece(piece, _) => SquareKind::Piece(piece, SquareStatus::Capturable {by_color}),
         };
     }
 
@@ -148,9 +148,9 @@ impl Board {
         for rank in self.square.iter_mut() {
             for square in rank.iter_mut() {
                 match square {
-                    SquareKind::Empty(SquareStatus::Captureable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
+                    SquareKind::Empty(SquareStatus::Capturable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
                     SquareKind::Empty(SquareStatus::Vulnerable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
-                    SquareKind::Piece(piece, SquareStatus::Captureable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    SquareKind::Piece(piece, SquareStatus::Capturable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
                     SquareKind::Piece(piece, SquareStatus::Vulnerable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
                     _ => (),
                 }
@@ -169,7 +169,7 @@ impl std::fmt::Display for Board {
                     SquareKind::Empty(status) => {
                         match status {
                             SquareStatus::Normal => "_".to_owned(),
-                            SquareStatus::Captureable {..} => "X".to_owned(),
+                            SquareStatus::Capturable {..} => "X".to_owned(),
                             SquareStatus::Vulnerable {..} => "V".to_owned(),
                         }
                     },
@@ -178,7 +178,7 @@ impl std::fmt::Display for Board {
                             let a = if pawn.get_color() == Color::Black { "♙" } else { "♟" };
 
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -186,7 +186,7 @@ impl std::fmt::Display for Board {
                             let a = if bishop.get_color() == Color::Black { "♗" } else { "♝" }; 
                             
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -194,7 +194,7 @@ impl std::fmt::Display for Board {
                             let a = if knight.get_color() == Color::Black { "♘" } else { "♞" }; 
                             
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -202,7 +202,7 @@ impl std::fmt::Display for Board {
                             let a = if rook.get_color() == Color::Black { "♖" } else { "♜" }; 
 
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -210,7 +210,7 @@ impl std::fmt::Display for Board {
                             let a = if queen.get_color() == Color::Black { "♕" } else { "♛" }; 
                             
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -218,7 +218,7 @@ impl std::fmt::Display for Board {
                             let a = if king.get_color() == Color::Black { "♔" } else { "♚" }; 
 
                             match status {
-                                SquareStatus::Captureable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },

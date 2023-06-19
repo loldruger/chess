@@ -46,7 +46,7 @@ impl King {
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
                 if board.is_empty(position) {
-                    valid_moves.push((position, CaptureStatus::Captureable));
+                    valid_moves.push((position, CaptureStatus::Capturable));
                 }
             }
         }
@@ -56,9 +56,9 @@ impl King {
             .iter()
             .map(|x| {
                 match x.1 {
-                    CaptureStatus::Captureable => x.0,
-                    CaptureStatus::CaptureablePassibly => x.0,
-                    CaptureStatus::NotCaptureable => Square::None,
+                    CaptureStatus::Capturable => x.0,
+                    CaptureStatus::CapturablePassibly => x.0,
+                    CaptureStatus::NotCapturable => Square::None,
                 }
             })
             .collect::<Vec<Square>>();

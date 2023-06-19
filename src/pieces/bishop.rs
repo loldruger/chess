@@ -29,13 +29,13 @@ impl Bishop {
         let mut c = 0;
         let mut d = 0;
         let mut is_king_pierced = false;
-        
+
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
             let mut capture_status = if *pierce_counter > 0 {
-                CaptureStatus::CaptureablePassibly
+                CaptureStatus::CapturablePassibly
             } else {
-                CaptureStatus::Captureable
+                CaptureStatus::Capturable
             };
 
             if !board.is_empty(position) {
@@ -53,7 +53,7 @@ impl Bishop {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = CaptureStatus::NotCaptureable;
+                    capture_status = CaptureStatus::NotCapturable;
                 }
 
                 if *pierce_counter < 2 {

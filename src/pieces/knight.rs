@@ -40,14 +40,14 @@ impl Knight {
                     let color = query.get_color();
     
                     if color != self.color {
-                        valid_moves.push((position, CaptureStatus::Captureable));
+                        valid_moves.push((position, CaptureStatus::Capturable));
 
                         if let super::Piece::K(mut king) = query {
                             king.set_checked(true);
                         }
                     }
                 } else {
-                    valid_moves.push((position, CaptureStatus::Captureable));
+                    valid_moves.push((position, CaptureStatus::Capturable));
                 }
             }
         }

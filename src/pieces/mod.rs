@@ -15,9 +15,9 @@ pub use king::King;
 use crate::{board::Board, square::Square};
 
 pub enum CaptureStatus {
-    Captureable,
-    CaptureablePassibly,
-    NotCaptureable,
+    Capturable,
+    CapturablePassibly,
+    NotCapturable,
 }
 
 #[derive(Copy, Clone, PartialEq)]
