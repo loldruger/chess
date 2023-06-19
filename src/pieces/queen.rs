@@ -1,6 +1,6 @@
 use crate::{board::Board, square::Square};
 
-use super::Color;
+use super::{Color, CaptureStatus};
 
 #[derive(Clone, Copy)]
 pub struct Queen {
@@ -18,7 +18,7 @@ impl Queen {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
         let mut valid_moves = Vec::new();
 
         

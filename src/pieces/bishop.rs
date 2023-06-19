@@ -1,6 +1,6 @@
 use crate::{square::Square, board::Board};
 
-use super::Color;
+use super::{Color, CaptureStatus};
 
 #[derive(Clone, Copy)]
 pub struct Bishop {
@@ -18,8 +18,9 @@ impl Bishop {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
         let mut valid_moves = Vec::new();
+        
         let current_file = coord_from.get_file();
         let current_rank = coord_from.get_rank();
         
@@ -30,22 +31,29 @@ impl Bishop {
 
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
+            let capture_status = if *pierce_counter > 0 {
+                CaptureStatus::Captureable
+            } else {
+                CaptureStatus::UnCaptureable
+            };
 
             if !board.is_empty(position) {
                 let query = board.get_piece(position).unwrap();
                 let color = query.get_color();
 
                 if color != self.color {
-                    valid_moves.push((position, *pierce_counter > 0));
-
                     if let super::Piece::K(mut king) = query {
                         king.set_checked(true);
                     }
+                    valid_moves.push((position, capture_status));
+
                 }
                 *pierce_counter += 1;
+
             } else {
                 if *pierce_counter < 2 {
-                    valid_moves.push((position, *pierce_counter > 0));
+
+                    valid_moves.push((position, capture_status));
                 }
             }
         };

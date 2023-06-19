@@ -14,6 +14,11 @@ pub use king::King;
 
 use crate::{board::Board, square::Square};
 
+pub enum CaptureStatus {
+    Captureable,
+    UnCaptureable,
+}
+
 #[derive(Copy, Clone, PartialEq)]
 pub enum Color {
     White,
@@ -51,7 +56,7 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, CaptureStatus)> {
         match self {
             Piece::P(p) => p.get_valid_moves(board, coord),
             Piece::B(p) => p.get_valid_moves(board, coord),
@@ -61,8 +66,5 @@ impl Piece {
             Piece::K(p) => p.get_valid_moves(board, coord),
         }
     }
-
-
-
 }
 

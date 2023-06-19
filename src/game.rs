@@ -1,4 +1,4 @@
-use crate::{board::Board, square::Square, pieces::{Piece, Color}};
+use crate::{board::Board, square::Square, pieces::{Piece, Color, CaptureStatus}};
 
 pub struct GameManager {
     board: Board,
@@ -42,10 +42,9 @@ impl GameManager {
             .get_valid_moves(&mut self.board, coord)
             .iter()
             .for_each(|i| {
-                if (*i).1 {
-                    self.board.mark_vulnerable((*i).0, by_color);
-                } else {
-                    self.board.mark_under_attack((*i).0, by_color);
+                match (*i).1 {
+                    CaptureStatus::Captureable =>  self.board.mark_under_attack((*i).0, by_color),
+                    CaptureStatus::UnCaptureable => self.board.mark_vulnerable((*i).0, by_color),
                 }
             });
             
@@ -56,7 +55,16 @@ impl GameManager {
         let piece = self.piece_selected.unwrap();
         let color = piece.get_color();
 
-        if piece.get_valid_moves(&mut self.board, coord_from).iter().any(|i| (*i).0 == coord_to && !(*i).1) {
+        let condition = piece.get_valid_moves(&mut self.board, coord_from)
+            .iter()
+            .any(|i| {
+                (*i).0 == coord_to && match (*i).1 {
+                    CaptureStatus::Captureable => true,
+                    CaptureStatus::UnCaptureable => false,
+                }
+        });
+
+        if condition {
             self.board.move_piece(coord_from, coord_to).ok();
             self.board.clear_marks();
             self.piece_selected = None;

@@ -1,8 +1,6 @@
-use std::collections::HashSet;
-
 use crate::{square::{Square, SquareKind, SquareStatus}, board::Board};
 
-use super::Color;
+use super::{Color, CaptureStatus};
 
 #[derive(Clone, Copy)]
 pub struct King {
@@ -30,7 +28,7 @@ impl King {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
         let mut valid_moves = Vec::new();
         let current_file = coord_from.get_rank();
         let current_rank = coord_from.get_file();
@@ -48,7 +46,7 @@ impl King {
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
                 if board.is_empty(position) {
-                    valid_moves.push((position, false));
+                    valid_moves.push((position, CaptureStatus::Captureable));
                 }
             }
         }

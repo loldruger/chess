@@ -1,4 +1,4 @@
-use crate::{square::{Square, SquareKind, SquareStatus}, pieces::{Piece, Color}};
+use crate::{square::{Square, SquareKind, SquareStatus}, pieces::{Piece, Color, CaptureStatus}};
 
 pub struct Board {
     square: [[SquareKind; 8]; 8]
@@ -60,7 +60,7 @@ impl Board {
             .collect::<Vec<&Piece>>()
     }
 
-    pub fn get_valid_moves(&mut self, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&mut self, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
         let rank = coord_from.get_rank() as usize;
         let file = coord_from.get_file() as usize;
 
@@ -70,7 +70,7 @@ impl Board {
         }
     }
     
-    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, CaptureStatus)> {
         let mut all_moves = Vec::new();
         for rank in 0..8 {
             for file in 0..8 {
@@ -114,7 +114,7 @@ impl Board {
         let file_to = coord_to.get_file() as usize;
 
         match self.square[file_from][rank_from] {
-            SquareKind::Piece(mut piece, status) => {
+            SquareKind::Piece(piece, status) => {
                 self.square[file_from][rank_from] = SquareKind::Empty(status);
                 self.square[file_to][rank_to] = SquareKind::Piece(piece, status);
 
