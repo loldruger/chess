@@ -20,7 +20,7 @@ impl Bishop {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
         let mut valid_moves = Vec::new();
         let current_file = coord_from.get_file();
         let current_rank = coord_from.get_rank();
@@ -39,6 +39,10 @@ impl Bishop {
 
                 if color != self.color {
                     valid_moves.push((position, *pierce_counter > 0));
+
+                    if let super::Piece::K(mut king) = query {
+                        king.set_checked(true);
+                    }
                 }
                 *pierce_counter += 1;
             } else {

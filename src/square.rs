@@ -73,9 +73,8 @@ impl Square {
 #[derive(Clone, Copy, PartialEq)]
 pub enum SquareStatus {
     Normal,
-    UnderAttackActive {by_color: Color},
-    VulnerableActive {by_color: Color},
-    VulnerablePassive {by_color: Color},
+    UnderAttack { by_color: Color },
+    Vulnerable { by_color: Color },
 }
 
 #[derive(Clone, Copy)]
@@ -101,16 +100,16 @@ impl SquareKind {
 
     pub fn is_under_attack(&self, by_color: Color) -> bool {
         match self {
-            SquareKind::Empty(SquareStatus::UnderAttackActive {by_color}) => true,
-            SquareKind::Piece(_, SquareStatus::UnderAttackActive {by_color}) => true,
+            SquareKind::Empty(SquareStatus::UnderAttack {by_color}) => true,
+            SquareKind::Piece(_, SquareStatus::UnderAttack {by_color}) => true,
             _ => false,
         }
     }
 
     pub fn is_vulnerable(&self, by_color: Color) -> bool {
         match self {
-            SquareKind::Empty(SquareStatus::VulnerableActive {by_color}) => true,
-            SquareKind::Piece(_, SquareStatus::VulnerableActive {by_color}) => true,
+            SquareKind::Empty(SquareStatus::Vulnerable {by_color}) => true,
+            SquareKind::Piece(_, SquareStatus::Vulnerable {by_color}) => true,
             _ => false,
         }
     }

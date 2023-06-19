@@ -70,6 +70,22 @@ impl Board {
         }
     }
     
+    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, bool)> {
+        let mut all_moves = Vec::new();
+        for rank in 0..8 {
+            for file in 0..8 {
+                let square = Square::from_position((rank, file));
+                if let Some(piece) = self.get_piece(square) {
+                    if piece.get_color() == color {
+                        let valid_moves = piece.get_valid_moves(self, square);
+                        all_moves.extend(valid_moves);
+                    }
+                }
+            }
+        }
+        all_moves
+    }
+
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
         let rank = coord.get_rank() as usize;
         let file = coord.get_file() as usize;
@@ -114,8 +130,8 @@ impl Board {
         let file = coord.get_file() as usize;
 
         self.square[file][rank] = match self.square[file][rank] {
-            SquareKind::Empty(_) => SquareKind::Empty(SquareStatus::UnderAttackActive {by_color}),
-            SquareKind::Piece(piece, _) => SquareKind::Piece(piece, SquareStatus::UnderAttackActive {by_color}),
+            SquareKind::Empty(_) => SquareKind::Empty(SquareStatus::UnderAttack {by_color}),
+            SquareKind::Piece(piece, _) => SquareKind::Piece(piece, SquareStatus::UnderAttack {by_color}),
         };
     }
 
@@ -124,18 +140,19 @@ impl Board {
         let file = coord.get_file() as usize;
 
         match self.square[file][rank] {
-            SquareKind::Empty(_) => self.square[file][rank] = SquareKind::Empty(SquareStatus::VulnerableActive {by_color}),
-            SquareKind::Piece(piece, _) => self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::VulnerableActive {by_color}),
+            SquareKind::Empty(_) => self.square[file][rank] = SquareKind::Empty(SquareStatus::Vulnerable {by_color}),
+            SquareKind::Piece(piece, _) => self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Vulnerable {by_color}),
         };
     }
+
     pub fn clear_marks(&mut self) {
         for rank in self.square.iter_mut() {
             for square in rank.iter_mut() {
                 match square {
-                    SquareKind::Empty(SquareStatus::UnderAttackActive {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
-                    SquareKind::Empty(SquareStatus::VulnerableActive {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
-                    SquareKind::Piece(piece, SquareStatus::UnderAttackActive {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
-                    SquareKind::Piece(piece, SquareStatus::VulnerableActive {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    SquareKind::Empty(SquareStatus::UnderAttack {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
+                    SquareKind::Empty(SquareStatus::Vulnerable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
+                    SquareKind::Piece(piece, SquareStatus::UnderAttack {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    SquareKind::Piece(piece, SquareStatus::Vulnerable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
                     _ => (),
                 }
             }
@@ -153,10 +170,8 @@ impl std::fmt::Display for Board {
                     SquareKind::Empty(status) => {
                         match status {
                             SquareStatus::Normal => "_".to_owned(),
-                            SquareStatus::UnderAttackActive {..} => "X".to_owned(),
-                            SquareStatus::VulnerableActive {..} => "V".to_owned(),
-                            SquareStatus::VulnerablePassive {..} => "O".to_owned(),
-                            
+                            SquareStatus::UnderAttack {..} => "X".to_owned(),
+                            SquareStatus::Vulnerable {..} => "V".to_owned(),
                         }
                     },
                     SquareKind::Piece(piece, status) => match piece {
@@ -164,7 +179,7 @@ impl std::fmt::Display for Board {
                             let a = if pawn.get_color() == Color::Black { "♙" } else { "♟" };
 
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -172,7 +187,7 @@ impl std::fmt::Display for Board {
                             let a = if bishop.get_color() == Color::Black { "♗" } else { "♝" }; 
                             
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -180,7 +195,7 @@ impl std::fmt::Display for Board {
                             let a = if knight.get_color() == Color::Black { "♘" } else { "♞" }; 
                             
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -188,7 +203,7 @@ impl std::fmt::Display for Board {
                             let a = if rook.get_color() == Color::Black { "♖" } else { "♜" }; 
 
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
@@ -196,15 +211,15 @@ impl std::fmt::Display for Board {
                             let a = if queen.get_color() == Color::Black { "♕" } else { "♛" }; 
                             
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },
                         Piece::K(king) => {
                             let a = if king.get_color() == Color::Black { "♔" } else { "♚" }; 
-                            
+
                             match status {
-                                SquareStatus::UnderAttackActive { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
+                                SquareStatus::UnderAttack { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()
                             }
                         },

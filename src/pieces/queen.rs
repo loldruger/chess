@@ -20,7 +20,7 @@ impl Queen {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
         let mut valid_moves = Vec::new();
 
         

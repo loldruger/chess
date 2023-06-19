@@ -73,7 +73,7 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, bool)> {
         match self {
             Piece::P(p) => p.get_valid_moves(board, coord),
             Piece::B(p) => p.get_valid_moves(board, coord),
@@ -87,3 +87,4 @@ impl Piece {
 
 
 }
+

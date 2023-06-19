@@ -20,7 +20,7 @@ impl Pawn {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, bool)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, bool)> {
         let mut valid_moves = Vec::new();
 
         let current_file = coord_from.get_rank();
@@ -38,7 +38,7 @@ impl Pawn {
                     valid_moves.push((Square::from_position((current_file, target_rank)), false));
                 }
                 // Double move from the starting rank
-                if current_rank == 6 && target_rank >= 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
+                if current_rank == 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     valid_moves.push((Square::from_position((current_file, target_rank - 1)), false));
                 }
                 // Capture diagonally to the left
@@ -60,7 +60,7 @@ impl Pawn {
                     valid_moves.push((Square::from_position((current_file, target_rank)), false));
                 }
                 // Double move from the starting rank
-                if current_rank == 1 && target_rank <= 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
+                if current_rank == 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     valid_moves.push((Square::from_position((current_file, target_rank + 1)), false));
                 }
                 // Capture diagonally to the left

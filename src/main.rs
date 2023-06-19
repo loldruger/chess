@@ -14,7 +14,8 @@ fn main() {
     // game.get_board_mut().spawn(Square::D7, Piece::B(Bishop::new(Color::White))).ok();
     game.get_board_mut().spawn(Square::D4, Piece::K(King::new(Color::Black))).ok();
     game.get_board_mut().spawn(Square::D1, Piece::R(Rook::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::D2, Piece::P(Pawn::new(Color::White))).ok();
+    game.get_board_mut().spawn(Square::D2, Piece::P(Pawn::new(Color::Black))).ok();
+    game.get_board_mut().spawn(Square::H4, Piece::R(Rook::new(Color::White))).ok();
 
     print!("{}", game.get_board());
 
@@ -23,8 +24,8 @@ fn main() {
 
     loop {
         match game.get_turn() {
-            Color::White => println!("White's turn: "),
-            Color::Black => println!("Black's turn: "),
+            Color::White => print!("White's turn, "),
+            Color::Black => print!("Black's turn, "),
         }
 
         println!("Select a piece: ");
@@ -44,11 +45,13 @@ fn main() {
         }
 
         print!("{}", game.get_board());
-
+        user_input.clear();
+        
         loop {
             println!("move the piece to: ");
             stdin.read_line(&mut user_input).unwrap();
             if game.move_piece(coord.unwrap(), Square::from_str(&user_input[0..2]).unwrap()).is_err() {
+                user_input.clear();
                 continue;
             };
     
