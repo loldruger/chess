@@ -40,28 +40,6 @@ pub enum Piece {
 }
 
 impl Piece {
-    pub fn set_coord(&mut self, coord: Square) {
-        match self {
-            Piece::P(p) => p.set_coord(coord),
-            Piece::B(p) => p.set_coord(coord),
-            Piece::N(p) => p.set_coord(coord),
-            Piece::R(p) => p.set_coord(coord),
-            Piece::Q(p) => p.set_coord(coord),
-            Piece::K(p) => p.set_coord(coord),
-        }
-    }
-
-    pub fn get_coord(&self) -> Square {
-        match self {
-            Piece::P(p) => p.get_coord(),
-            Piece::B(p) => p.get_coord(),
-            Piece::N(p) => p.get_coord(),
-            Piece::R(p) => p.get_coord(),
-            Piece::Q(p) => p.get_coord(),
-            Piece::K(p) => p.get_coord(),
-        }
-    }
-
     pub fn get_color(&self) -> Color {
         match self {
             Piece::P(p) => p.get_color(),

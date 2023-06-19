@@ -5,14 +5,12 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct Pawn {
     color: Color,
-    coord: Square,
 }
 
 impl Pawn {
     pub fn new(color: Color) -> Self {
         Self {
             color,
-            coord: Square::None,
         }
     }
 
@@ -75,13 +73,5 @@ impl Pawn {
         }
 
         valid_moves
-    }
-
-    pub fn get_coord(&self) -> Square {
-        self.coord
-    }
-
-    pub fn set_coord(&mut self, coord: Square) {
-        self.coord = coord;
     }
 }

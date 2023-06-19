@@ -18,7 +18,7 @@ impl Board {
         if let Some(_) = self.square[file][rank].get_piece() {
             return Err("Square is occupied!");
         }
-        piece.set_coord(coord);
+
         self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Normal);
 
         Ok(())
@@ -115,7 +115,6 @@ impl Board {
 
         match self.square[file_from][rank_from] {
             SquareKind::Piece(mut piece, status) => {
-                piece.set_coord(coord_to);
                 self.square[file_from][rank_from] = SquareKind::Empty(status);
                 self.square[file_to][rank_to] = SquareKind::Piece(piece, status);
 

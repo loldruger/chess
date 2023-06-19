@@ -5,14 +5,12 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct Rook {
     color: Color,
-    coord: Square,
 }
 
 impl Rook {
     pub fn new(color: Color) -> Self {
         Self {
             color,
-            coord: Square::None,
         }
     }
 
@@ -38,15 +36,13 @@ impl Rook {
                 let color = query.get_color();
 
                 if color != self.color {
-                    
-                    valid_moves.push((position, *pierce_counter > 0));
-
                     if let super::Piece::K(mut king) = query {
                         king.set_checked(true);
                     }
+                    valid_moves.push((position, *pierce_counter > 0));
+
                 }
                 *pierce_counter += 1;
-
 
             } else {
                 if *pierce_counter < 2 {
@@ -75,13 +71,5 @@ impl Rook {
         }
 
         valid_moves
-    }
-
-    pub fn get_coord(&self) -> Square {
-        self.coord
-    }
-
-    pub fn set_coord(&mut self, coord: Square) {
-        self.coord = coord;
     }
 }

@@ -7,7 +7,6 @@ use super::Color;
 #[derive(Clone, Copy)]
 pub struct King {
     color: Color,
-    coord: Square,
     is_checked: bool,
 }
 
@@ -15,7 +14,6 @@ impl King {
     pub fn new(color: Color) -> King {
         King {
             color,
-            coord: Square::None,
             is_checked: false,
         }
     }
@@ -49,10 +47,7 @@ impl King {
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
-                if board.is_empty(position) &&
-                    !board.is_vulnerable(position, self.color.opposite()) && 
-                    !board.is_under_attack(position, self.color.opposite())
-                    {
+                if board.is_empty(position) {
                     valid_moves.push((position, false));
                 }
             }
@@ -67,13 +62,5 @@ impl King {
         valid_moves.retain(|x| !opponent_move.contains(&x.0));
 
         valid_moves
-    }
-
-    pub fn get_coord(&self) -> Square {
-        self.coord
-    }
-
-    pub fn set_coord(&mut self, coord: Square) {
-        self.coord = coord;
     }
 }
