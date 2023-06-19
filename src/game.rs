@@ -56,9 +56,9 @@ impl GameManager {
         let piece = self.piece_selected.unwrap();
         let color = piece.get_color();
 
-        if piece.get_valid_moves(&mut self.board, coord_from).iter().any(|i| (*i).0 == coord_to) {
+        if piece.get_valid_moves(&mut self.board, coord_from).iter().any(|i| (*i).0 == coord_to && !(*i).1) {
             self.board.move_piece(coord_from, coord_to).ok();
-
+            self.board.clear_marks();
             self.piece_selected = None;
             self.turn = self.turn.opposite();
             Ok(())

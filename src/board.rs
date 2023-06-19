@@ -128,6 +128,19 @@ impl Board {
             SquareKind::Piece(piece, _) => self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::VulnerableActive {by_color}),
         };
     }
+    pub fn clear_marks(&mut self) {
+        for rank in self.square.iter_mut() {
+            for square in rank.iter_mut() {
+                match square {
+                    SquareKind::Empty(SquareStatus::UnderAttackActive {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
+                    SquareKind::Empty(SquareStatus::VulnerableActive {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
+                    SquareKind::Piece(piece, SquareStatus::UnderAttackActive {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    SquareKind::Piece(piece, SquareStatus::VulnerableActive {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    _ => (),
+                }
+            }
+        }
+    }
 }
 
 impl std::fmt::Display for Board {
