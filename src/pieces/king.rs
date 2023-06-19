@@ -54,11 +54,17 @@ impl King {
         let opponent_move = board
             .get_valid_moves_all(self.color.opposite())
             .iter()
-            .map(|x| x.0)
+            .map(|x| {
+                match x.1 {
+                    CaptureStatus::Captureable => x.0,
+                    CaptureStatus::CaptureablePassibly => x.0,
+                    CaptureStatus::NotCaptureable => Square::None,
+                }
+            })
             .collect::<Vec<Square>>();
 
         valid_moves.retain(|x| !opponent_move.contains(&x.0));
-
+        
         valid_moves
     }
 }

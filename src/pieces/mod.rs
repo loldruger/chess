@@ -16,7 +16,8 @@ use crate::{board::Board, square::Square};
 
 pub enum CaptureStatus {
     Captureable,
-    UnCaptureable,
+    CaptureablePassibly,
+    NotCaptureable,
 }
 
 #[derive(Copy, Clone, PartialEq)]

@@ -43,8 +43,8 @@ impl GameManager {
             .iter()
             .for_each(|i| {
                 match (*i).1 {
-                    CaptureStatus::Captureable =>  self.board.mark_under_attack((*i).0, by_color),
-                    CaptureStatus::UnCaptureable => self.board.mark_vulnerable((*i).0, by_color),
+                    CaptureStatus::Captureable => self.board.mark_captureable((*i).0, by_color),
+                    _ => self.board.mark_vulnerable((*i).0, by_color),
                 }
             });
             
@@ -60,7 +60,7 @@ impl GameManager {
             .any(|i| {
                 (*i).0 == coord_to && match (*i).1 {
                     CaptureStatus::Captureable => true,
-                    CaptureStatus::UnCaptureable => false,
+                    _ => false,
                 }
         });
 
