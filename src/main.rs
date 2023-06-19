@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::{pieces::{Piece, Pawn, Color, Bishop, King, Rook, Knight}, square::Square};
+use crate::{pieces::{Piece, Pawn, Color, Bishop, King, Rook, Knight, Queen}, square::Square};
 
 mod pieces;
 mod square;
@@ -11,11 +11,12 @@ fn main() {
     let mut game = game::GameManager::new();
 
     // game.get_board_mut().spawn(Square::A1, Piece::B(Bishop::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::B6, Piece::B(Bishop::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::D4, Piece::K(King::new(Color::Black))).ok();
+    // game.get_board_mut().spawn(Square::B6, Piece::Q(Queen::new(Color::White))).ok();
+    game.get_board_mut().spawn(Square::D5, Piece::K(King::new(Color::Black))).ok();
     game.get_board_mut().spawn(Square::D1, Piece::R(Rook::new(Color::White))).ok();
     game.get_board_mut().spawn(Square::D2, Piece::P(Pawn::new(Color::Black))).ok();
-    game.get_board_mut().spawn(Square::H4, Piece::R(Rook::new(Color::White))).ok();
+    game.get_board_mut().spawn(Square::D3, Piece::P(Pawn::new(Color::Black))).ok();
+    game.get_board_mut().spawn(Square::H5, Piece::R(Rook::new(Color::White))).ok();
 
     print!("{}", game.get_board());
 
