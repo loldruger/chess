@@ -17,7 +17,7 @@ use crate::{board::Board, square::Square};
 pub enum MoveStatus {
     Capturable,
     CapturablePossibly,
-    NotCapturable,
+    UnCapturable,
     Castling,
     Movable
 }

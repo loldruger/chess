@@ -52,7 +52,7 @@ impl Rook {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = MoveStatus::NotCapturable;
+                    capture_status = MoveStatus::UnCapturable;
                 }
 
                 if *pierce_counter < 2 {
