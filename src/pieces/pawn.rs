@@ -1,6 +1,6 @@
 use crate::{board::Board, square::Square};
 
-use super::{Color, CaptureStatus};
+use super::{Color, MoveStatus};
 
 #[derive(Clone, Copy)]
 pub struct Pawn {
@@ -18,7 +18,7 @@ impl Pawn {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
 
         let current_file = coord_from.get_rank();
@@ -34,22 +34,22 @@ impl Pawn {
 
                 if board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank)), CaptureStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable));
                     }
                 }
                 // Double move from the starting rank
                 if current_rank == 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank - 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank - 1)), CaptureStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank - 1)), MoveStatus::Movable));
                     }
                 }
                 // Capture diagonally to the left
                 if current_file > 0 && is_enemy_piece1 {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), CaptureStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable));
                 }
                 // Capture diagonally to the right
                 if current_file < 7 && is_enemy_piece2 {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), CaptureStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable));
                 }
             },
             Color::White => {
@@ -60,22 +60,22 @@ impl Pawn {
 
                 if target_rank <= 7 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank)), CaptureStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable));
                     }
                 }
                 // Double move from the starting rank
                 if current_rank == 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank + 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank + 1)), CaptureStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank + 1)), MoveStatus::Movable));
                     }
                 }
                 // Capture diagonally to the left
                 if current_file > 0 && target_rank <= 7 && is_enemy_piece1 {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), CaptureStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable));
                 }
                 // Capture diagonally to the right
                 if current_file < 7 && target_rank <= 7 && is_enemy_piece2 {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), CaptureStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable));
                 }
             }
         }

@@ -1,6 +1,6 @@
 use crate::{square::{Square, SquareKind, SquareStatus}, board::Board};
 
-use super::{Color, CaptureStatus};
+use super::{Color, MoveStatus};
 
 #[derive(Clone, Copy)]
 pub struct King {
@@ -28,8 +28,9 @@ impl King {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
+
         let current_file = coord_from.get_rank();
         let current_rank = coord_from.get_file();
 
@@ -46,18 +47,48 @@ impl King {
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
                 if board.is_empty(position) {
-                    valid_moves.push((position, CaptureStatus::Capturable));
+                    valid_moves.push((position, MoveStatus::Capturable));
                 }
             }
         }
         
+        match self.color {
+            Color::Black => (),
+            Color::White => {
+                if board.get_piece(Square::H1).is_some_and(|x| x.get_color() == self.color) &&
+                    board.is_empty(Square::F1) &&
+                    board.is_empty(Square::G1) &&
+                    !board.is_under_attack(Square::G1, Color::Black) &&
+                    !board.is_under_attack(Square::F1, Color::Black) &&
+                    self.is_checked == false
+                {
+                    valid_moves.push((Square::G1, MoveStatus::Capturable));
+                    valid_moves.push((Square::F1, MoveStatus::Capturable));
+                }
+                
+                if board.get_piece(Square::A1).is_some_and(|x| x.get_color() == self.color) &&
+                    board.is_empty(Square::B1) &&
+                    board.is_empty(Square::C1) &&
+                    board.is_empty(Square::D1) &&
+                    !board.is_under_attack(Square::B1, Color::Black) &&
+                    !board.is_under_attack(Square::C1, Color::Black) &&
+                    !board.is_under_attack(Square::D1, Color::Black) &&
+                    self.is_checked == false
+                {
+                    valid_moves.push((Square::B1, MoveStatus::Capturable));
+                    valid_moves.push((Square::C1, MoveStatus::Capturable));
+                    valid_moves.push((Square::D1, MoveStatus::Capturable));
+                }
+            },
+        }
+
         let opponent_move = board
-            .get_valid_moves_all(self.color.opposite())
+            .get_valid_moves_all(Color::Black)
             .iter()
             .map(|x| {
                 match x.1 {
-                    CaptureStatus::Capturable => x.0,
-                    CaptureStatus::CapturablePassibly => x.0,
+                    MoveStatus::Capturable => x.0,
+                    MoveStatus::CapturablePossibly => x.0,
                     _ => Square::None,
                 }
             })

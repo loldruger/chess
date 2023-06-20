@@ -1,4 +1,4 @@
-use crate::{board::Board, square::Square, pieces::{Piece, Color, CaptureStatus}};
+use crate::{board::Board, square::Square, pieces::{Piece, Color, MoveStatus}};
 
 pub struct GameManager {
     board: Board,
@@ -43,7 +43,7 @@ impl GameManager {
             .iter()
             .for_each(|i| {
                 match (*i).1 {
-                    CaptureStatus::Capturable => self.board.mark_captureable((*i).0, by_color),
+                    MoveStatus::Capturable => self.board.mark_captureable((*i).0, by_color),
                     _ => self.board.mark_vulnerable((*i).0, by_color),
                 }
             });
@@ -59,8 +59,8 @@ impl GameManager {
             .iter()
             .any(|i| {
                 (*i).0 == coord_to && match (*i).1 {
-                    CaptureStatus::Capturable => true,
-                    CaptureStatus::Movable => true,
+                    MoveStatus::Capturable => true,
+                    MoveStatus::Movable => true,
                     _ => false,
                 }
         });

@@ -1,6 +1,6 @@
 use crate::{square::Square, board::Board};
 
-use super::{Color, CaptureStatus};
+use super::{Color, MoveStatus};
 
 #[derive(Clone, Copy)]
 pub struct Rook {
@@ -18,7 +18,7 @@ impl Rook {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
         let current_file = coord_from.get_file();
         let current_rank = coord_from.get_rank();
@@ -32,9 +32,9 @@ impl Rook {
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
             let mut capture_status = if *pierce_counter > 0 {
-                CaptureStatus::CapturablePassibly
+                MoveStatus::CapturablePossibly
             } else {
-                CaptureStatus::Capturable
+                MoveStatus::Capturable
             };
 
             if !board.is_empty(position) {
@@ -52,7 +52,7 @@ impl Rook {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = CaptureStatus::NotCapturable;
+                    capture_status = MoveStatus::NotCapturable;
                 }
 
                 if *pierce_counter < 2 {

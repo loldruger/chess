@@ -14,10 +14,11 @@ pub use king::King;
 
 use crate::{board::Board, square::Square};
 
-pub enum CaptureStatus {
+pub enum MoveStatus {
     Capturable,
-    CapturablePassibly,
+    CapturablePossibly,
     NotCapturable,
+    Castling,
     Movable
 }
 
@@ -58,7 +59,7 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, MoveStatus)> {
         match self {
             Piece::P(p) => p.get_valid_moves(board, coord),
             Piece::B(p) => p.get_valid_moves(board, coord),

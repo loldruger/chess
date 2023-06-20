@@ -1,6 +1,6 @@
 use crate::{board::Board, square::Square};
 
-use super::{Color, CaptureStatus};
+use super::{Color, MoveStatus};
 
 #[derive(Clone, Copy)]
 pub struct Knight {
@@ -18,7 +18,7 @@ impl Knight {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
 
         let current_file = coord_from.get_file();
@@ -40,14 +40,14 @@ impl Knight {
                     let color = query.get_color();
     
                     if color != self.color {
-                        valid_moves.push((position, CaptureStatus::Capturable));
+                        valid_moves.push((position, MoveStatus::Capturable));
 
                         if let super::Piece::K(mut king) = query {
                             king.set_checked(true);
                         }
                     }
                 } else {
-                    valid_moves.push((position, CaptureStatus::Capturable));
+                    valid_moves.push((position, MoveStatus::Capturable));
                 }
             }
         }

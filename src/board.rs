@@ -1,4 +1,4 @@
-use crate::{square::{Square, SquareKind, SquareStatus}, pieces::{Piece, Color, CaptureStatus}};
+use crate::{square::{Square, SquareKind, SquareStatus}, pieces::{Piece, Color, MoveStatus}};
 
 pub struct Board {
     square: [[SquareKind; 8]; 8]
@@ -60,17 +60,7 @@ impl Board {
             .collect::<Vec<&Piece>>()
     }
 
-    pub fn get_valid_moves(&mut self, coord_from: Square) -> Vec<(Square, CaptureStatus)> {
-        let rank = coord_from.get_rank() as usize;
-        let file = coord_from.get_file() as usize;
-
-        match self.square[file][rank] {
-            SquareKind::Piece(piece, _) => piece.get_valid_moves(self, coord_from),
-            _ => Vec::new(),
-        }
-    }
-    
-    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, CaptureStatus)> {
+    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, MoveStatus)> {
         let mut all_moves = Vec::new();
         for rank in 0..8 {
             for file in 0..8 {
@@ -87,10 +77,14 @@ impl Board {
     }
 
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
-        let rank = coord.get_rank() as usize;
-        let file = coord.get_file() as usize;
-
-        self.square[file][rank].is_under_attack(by_color)
+        //sucks
+        let all_moves = self.get_valid_moves_all(by_color);
+        for (square, _) in all_moves {
+            if square == coord {
+                return true;
+            }
+        }
+        false
     }
 
     pub fn is_vulnerable(&self, coord: Square, by_color: Color) -> bool {
