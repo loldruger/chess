@@ -53,7 +53,32 @@ impl King {
         }
         
         match self.color {
-            Color::Black => (),
+            Color::Black => {
+                if board.get_piece(Square::H8).is_some_and(|x| x.get_color() == self.color) &&
+                board.is_empty(Square::F8) &&
+                board.is_empty(Square::G8) &&
+                !board.is_under_attack(Square::G8, Color::Black) &&
+                !board.is_under_attack(Square::F8, Color::Black) &&
+                self.is_checked == false
+            {
+                valid_moves.push((Square::G8, MoveStatus::Castling));
+                valid_moves.push((Square::F8, MoveStatus::Castling));
+            }
+            
+            if board.get_piece(Square::A8).is_some_and(|x| x.get_color() == self.color) &&
+                board.is_empty(Square::B8) &&
+                board.is_empty(Square::C8) &&
+                board.is_empty(Square::D8) &&
+                !board.is_under_attack(Square::B8, Color::Black) &&
+                !board.is_under_attack(Square::C8, Color::Black) &&
+                !board.is_under_attack(Square::D8, Color::Black) &&
+                self.is_checked == false
+            {
+                valid_moves.push((Square::B8, MoveStatus::Castling));
+                valid_moves.push((Square::C8, MoveStatus::Castling));
+                valid_moves.push((Square::D8, MoveStatus::Castling));
+            }
+            },
             Color::White => {
                 if board.get_piece(Square::H1).is_some_and(|x| x.get_color() == self.color) &&
                     board.is_empty(Square::F1) &&
@@ -62,8 +87,8 @@ impl King {
                     !board.is_under_attack(Square::F1, Color::Black) &&
                     self.is_checked == false
                 {
-                    valid_moves.push((Square::G1, MoveStatus::Capturable));
-                    valid_moves.push((Square::F1, MoveStatus::Capturable));
+                    valid_moves.push((Square::G1, MoveStatus::Castling));
+                    valid_moves.push((Square::F1, MoveStatus::Castling));
                 }
                 
                 if board.get_piece(Square::A1).is_some_and(|x| x.get_color() == self.color) &&
@@ -75,24 +100,32 @@ impl King {
                     !board.is_under_attack(Square::D1, Color::Black) &&
                     self.is_checked == false
                 {
-                    valid_moves.push((Square::B1, MoveStatus::Capturable));
-                    valid_moves.push((Square::C1, MoveStatus::Capturable));
-                    valid_moves.push((Square::D1, MoveStatus::Capturable));
+                    valid_moves.push((Square::B1, MoveStatus::Castling));
+                    valid_moves.push((Square::C1, MoveStatus::Castling));
+                    valid_moves.push((Square::D1, MoveStatus::Castling));
                 }
             },
         }
 
-        let opponent_move = board
-            .get_valid_moves_all(Color::Black)
-            .iter()
-            .map(|x| {
-                match x.1 {
-                    MoveStatus::Capturable => x.0,
-                    MoveStatus::CapturablePossibly => x.0,
-                    _ => Square::None,
-                }
-            })
-            .collect::<Vec<Square>>();
+        // let opponent_move = board
+        //     .get_valid_moves_all(self.color.opposite())
+        //     .iter()
+        //     .map(|x| {
+        //         match x.1 {
+        //             MoveStatus::Capturable => x.0,
+        //             MoveStatus::CapturablePossibly => x.0,
+        //             _ => Square::None,
+        //         }
+        //     })
+        //     .collect::<Vec<Square>>();
+
+        let opponent_move = board.get_capture_board().iter().filter_map(|x| {
+            if x.1 == self.color.opposite() {
+                Some(x.0)
+            } else {
+                None
+            }
+        }).collect::<Vec<Square>>();
 
         valid_moves.retain(|x| !opponent_move.contains(&x.0));
         

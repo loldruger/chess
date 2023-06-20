@@ -1,17 +1,20 @@
 use crate::{square::{Square, SquareKind, SquareStatus}, pieces::{Piece, Color, MoveStatus}};
 
 pub struct Board {
-    square: [[SquareKind; 8]; 8]
+    square: [[SquareKind; 8]; 8],
+    capture_board: Vec<(Square, Color)>
 }
 
 impl Board {
     pub fn new() -> Board {
         Board {
             square: [[SquareKind::Empty(SquareStatus::Normal); 8]; 8],
+            capture_board: Vec::new(),
+
         }
     }
 
-    pub fn spawn(&mut self, coord: Square, mut piece: Piece) -> Result<(), &'static str> {
+    pub fn spawn(&mut self, coord: Square, piece: Piece) -> Result<(), &'static str> {
         let rank = coord.get_rank() as usize;
         let file = coord.get_file() as usize;
         
@@ -20,7 +23,15 @@ impl Board {
         }
 
         self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Normal);
-
+        
+        piece.get_valid_moves(&self, coord).iter().for_each(|i| {
+            match (*i).1 {
+                MoveStatus::Capturable => self.capture_board.push(((*i).0, piece.get_color())),
+                MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                _ => (),
+            }
+        });
+            
         Ok(())
     }
 
@@ -60,6 +71,10 @@ impl Board {
             .collect::<Vec<&Piece>>()
     }
 
+    pub fn get_capture_board(&self) -> &Vec<(Square, Color)> {
+        &self.capture_board
+    }
+
     pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, MoveStatus)> {
         let mut all_moves = Vec::new();
         for rank in 0..8 {
@@ -77,22 +92,19 @@ impl Board {
     }
 
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
-        //sucks
-        let all_moves = self.get_valid_moves_all(by_color);
-        for (square, _) in all_moves {
-            if square == coord {
-                return true;
-            }
-        }
-        false
+        // let rank = coord.get_rank() as usize;
+        // let file = coord.get_file() as usize;
+
+        // self.capture_board[file][rank].is_under_attack(by_color)
+        self.capture_board.iter().any(|x| x.0 == coord && x.1 != by_color)
     }
 
-    pub fn is_vulnerable(&self, coord: Square, by_color: Color) -> bool {
-        let rank = coord.get_rank() as usize;
-        let file = coord.get_file() as usize;
+    // pub fn is_vulnerable(&self, coord: Square, by_color: Color) -> bool {
+    //     let rank = coord.get_rank() as usize;
+    //     let file = coord.get_file() as usize;
 
-        self.square[file][rank].is_vulnerable(by_color)
-    }
+    //     self.capture_board[file][rank].is_vulnerable(by_color)
+    // }
 
     pub fn is_empty(&self, coord: Square) -> bool {
         let rank = coord.get_rank() as usize;

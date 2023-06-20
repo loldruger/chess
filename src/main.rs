@@ -10,13 +10,14 @@ mod game;
 fn main() {
     let mut game = game::GameManager::new();
 
-    game.get_board_mut().spawn(Square::A2, Piece::B(Bishop::new(Color::Black))).ok();
+    // game.get_board_mut().spawn(Square::A2, Piece::B(Bishop::new(Color::Black))).ok();
     // game.get_board_mut().spawn(Square::B6, Piece::Q(Queen::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::E1, Piece::K(King::new(Color::White))).ok();
+    game.get_board_mut().spawn(Square::E4, Piece::K(King::new(Color::White))).ok();
     // game.get_board_mut().spawn(Square::D1, Piece::R(Rook::new(Color::White))).ok();
     game.get_board_mut().spawn(Square::D2, Piece::P(Pawn::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::H1, Piece::R(Rook::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::A1, Piece::R(Rook::new(Color::White))).ok();
+    game.get_board_mut().spawn(Square::E7, Piece::R(Rook::new(Color::Black))).ok();
+    game.get_board_mut().spawn(Square::A8, Piece::R(Rook::new(Color::Black))).ok();
+    game.get_board_mut().spawn(Square::E8, Piece::K(King::new(Color::Black))).ok();
 
     print!("{}", game.get_board());
 
