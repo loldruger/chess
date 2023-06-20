@@ -26,8 +26,7 @@ impl Board {
         
         piece.get_valid_moves(&self, coord).iter().for_each(|i| {
             match (*i).1 {
-                MoveStatus::Capturable => self.capture_board.push(((*i).0, piece.get_color())),
-                MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
                 _ => (),
             }
         });
@@ -42,69 +41,13 @@ impl Board {
         self.square[file][rank].get_piece()
     }
 
-    pub fn get_piece_mut(&mut self, square: Square) -> Option<&mut Piece> {
-        let rank = square.get_rank() as usize;
-        let file = square.get_file() as usize;
-
-        self.square[file][rank].get_piece_mut()
-    }
-
-    pub fn get_square(&self) -> &[[SquareKind; 8]; 8] {
-        &self.square
-    }
-
-    pub fn get_pieces(&self, color: Color) -> Vec<&Piece> {
-        self.square
-            .iter()
-            .flatten()
-            .filter_map(|x| {
-                if let SquareKind::Piece(piece, _) = x {
-                    if piece.get_color() == color {
-                        Some(piece)
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<&Piece>>()
-    }
-
     pub fn get_capture_board(&self) -> &Vec<(Square, Color)> {
         &self.capture_board
     }
 
-    pub fn get_valid_moves_all(&self, color: Color) -> Vec<(Square, MoveStatus)> {
-        let mut all_moves = Vec::new();
-        for rank in 0..8 {
-            for file in 0..8 {
-                let square = Square::from_position((rank, file));
-                if let Some(piece) = self.get_piece(square) {
-                    if piece.get_color() == color {
-                        let valid_moves = piece.get_valid_moves(self, square);
-                        all_moves.extend(valid_moves);
-                    }
-                }
-            }
-        }
-        all_moves
-    }
-
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
-        // let rank = coord.get_rank() as usize;
-        // let file = coord.get_file() as usize;
-
-        // self.capture_board[file][rank].is_under_attack(by_color)
         self.capture_board.iter().any(|x| x.0 == coord && x.1 != by_color)
     }
-
-    // pub fn is_vulnerable(&self, coord: Square, by_color: Color) -> bool {
-    //     let rank = coord.get_rank() as usize;
-    //     let file = coord.get_file() as usize;
-
-    //     self.capture_board[file][rank].is_vulnerable(by_color)
-    // }
 
     pub fn is_empty(&self, coord: Square) -> bool {
         let rank = coord.get_rank() as usize;

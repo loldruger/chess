@@ -119,13 +119,16 @@ impl King {
         //     })
         //     .collect::<Vec<Square>>();
 
-        let opponent_move = board.get_capture_board().iter().filter_map(|x| {
-            if x.1 == self.color.opposite() {
-                Some(x.0)
-            } else {
-                None
-            }
-        }).collect::<Vec<Square>>();
+        let opponent_move = board
+            .get_capture_board()
+            .iter()
+            .filter_map(|x| {
+                if x.1 == self.color.opposite() {
+                    Some(x.0)
+                } else {
+                    None
+                }
+            }).collect::<Vec<Square>>();
 
         valid_moves.retain(|x| !opponent_move.contains(&x.0));
         
