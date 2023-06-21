@@ -107,18 +107,6 @@ impl King {
             },
         }
 
-        // let opponent_move = board
-        //     .get_valid_moves_all(self.color.opposite())
-        //     .iter()
-        //     .map(|x| {
-        //         match x.1 {
-        //             MoveStatus::Capturable => x.0,
-        //             MoveStatus::CapturablePossibly => x.0,
-        //             _ => Square::None,
-        //         }
-        //     })
-        //     .collect::<Vec<Square>>();
-
         let opponent_move = board
             .get_capture_board()
             .iter()

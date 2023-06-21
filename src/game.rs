@@ -1,8 +1,28 @@
 use crate::{board::Board, square::Square, pieces::{Piece, Color, MoveStatus}};
 
+pub enum GameState {
+    Playing { by_color: Color },
+    InCheck { by_color: Color },
+    Checkmate { by_color: Color },
+    Promoting { by_color: Color },
+    Stalemate,
+}
+
+impl GameState {
+    pub fn get_by_color(&self) -> Color {
+        match self {
+            GameState::Playing { by_color } => *by_color,
+            GameState::InCheck { by_color } => *by_color,
+            GameState::Checkmate { by_color } => *by_color,
+            GameState::Promoting { by_color } => *by_color,
+            GameState::Stalemate => Color::White,
+        }
+    }
+}
+
 pub struct GameManager {
     board: Board,
-    turn: Color,
+    pub state: GameState,
     piece_selected: Option<Piece>,
 }
 
@@ -10,13 +30,17 @@ impl GameManager {
     pub fn new() -> GameManager {
         GameManager {
             board: Board::new(),
-            turn: Color::White,
+            state: GameState::Playing { by_color: Color::White },
             piece_selected: None,
         }
     }
 
     pub fn get_turn(&self) -> Color {
-        self.turn
+        self.state.get_by_color()
+    }
+
+    pub fn get_state(&self) -> &GameState {
+        &self.state
     }
 
     pub fn get_board(&self) -> &Board {
@@ -98,11 +122,19 @@ impl GameManager {
             }
         }
 
+        if let Piece::P(_) = piece {
+            match color {
+                Color::Black => {},
+                Color::White => {},
+            }
+        }
+
         if condition {
             self.board.move_piece(coord_from, coord_to).ok();
+            self.board.update_capture_board();
             self.board.clear_marks();
             self.piece_selected = None;
-            self.turn = self.turn.opposite();
+            self.state = GameState::Playing { by_color: color.opposite() };
             Ok(())
         } else {
             Err((format!("cannot move piece from {coord_from} to {coord_to}"), color).0)

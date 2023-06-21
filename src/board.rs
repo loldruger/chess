@@ -24,12 +24,14 @@ impl Board {
 
         self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Normal);
         
-        piece.get_valid_moves(&self, coord).iter().for_each(|i| {
-            match (*i).1 {
-                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
-                _ => (),
-            }
-        });
+        piece.get_valid_moves(&self, coord)
+            .iter()
+            .for_each(|i| {
+                match (*i).1 {
+                    MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                    _ => (),
+                }
+            });
             
         Ok(())
     }
@@ -43,6 +45,26 @@ impl Board {
 
     pub fn get_capture_board(&self) -> &Vec<(Square, Color)> {
         &self.capture_board
+    }
+
+    pub fn update_capture_board(&mut self) {
+        self.capture_board.clear();
+
+        for (i, rank) in self.square.iter().enumerate() {
+            for (j, square) in rank.iter().enumerate() {
+                match square {
+                    SquareKind::Piece(piece, _) => {
+                        piece.get_valid_moves(&self, Square::from_position((j as i32, i as i32))).iter().for_each(|i| {
+                            match (*i).1 {
+                                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                                _ => (),
+                            }
+                        });
+                    },
+                    _ => (),
+                }
+            }
+        }
     }
 
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
