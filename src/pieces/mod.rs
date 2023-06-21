@@ -14,6 +14,7 @@ pub use king::King;
 
 use crate::{board::Board, square::Square};
 
+#[derive(PartialEq)]
 pub enum MoveStatus {
     Capturable,
     CapturablePossibly,
@@ -59,7 +60,7 @@ impl Piece {
         }
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord: Square) -> Vec<(Square, MoveStatus)> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord: Square) -> Vec<(Square, MoveStatus)> {
         match self {
             Piece::P(p) => p.get_valid_moves(board, coord),
             Piece::B(p) => p.get_valid_moves(board, coord),

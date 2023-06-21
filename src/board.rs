@@ -24,7 +24,7 @@ impl Board {
 
         self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Normal);
         
-        piece.get_valid_moves(&self, coord)
+        piece.get_valid_moves(self, coord)
             .iter()
             .for_each(|i| {
                 match (*i).1 {
@@ -43,28 +43,15 @@ impl Board {
         self.square[file][rank].get_piece()
     }
 
-    pub fn get_capture_board(&self) -> &Vec<(Square, Color)> {
-        &self.capture_board
+    pub fn get_piece_mut(&mut self, square: Square) -> Option<&mut Piece> {
+        let rank = square.get_rank() as usize;
+        let file = square.get_file() as usize;
+
+        self.square[file][rank].get_piece_mut()
     }
 
-    pub fn update_capture_board(&mut self) {
-        self.capture_board.clear();
-
-        for (i, rank) in self.square.iter().enumerate() {
-            for (j, square) in rank.iter().enumerate() {
-                match square {
-                    SquareKind::Piece(piece, _) => {
-                        piece.get_valid_moves(&self, Square::from_position((j as i32, i as i32))).iter().for_each(|i| {
-                            match (*i).1 {
-                                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
-                                _ => (),
-                            }
-                        });
-                    },
-                    _ => (),
-                }
-            }
-        }
+    pub fn get_capture_board(&self) -> &Vec<(Square, Color)> {
+        &self.capture_board
     }
 
     pub fn is_under_attack(&self, coord: Square, by_color: Color) -> bool {
@@ -128,6 +115,46 @@ impl Board {
             }
         }
     }
+
+    pub fn update_capture_board(&mut self) {
+        self.capture_board.clear();
+
+        for (i, rank) in self.square.clone().iter().enumerate() {
+            for (j, square) in rank.iter().enumerate() {
+                match square {
+                    SquareKind::Piece(piece, _) => {
+                        piece.get_valid_moves(self, Square::from_position((j as i32, i as i32))).iter().for_each(|i| {
+                            match (*i).1 {
+                                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                                _ => (),
+                            }
+                        });
+                    },
+                    _ => (),
+                }
+            }
+        }
+    }
+
+    pub fn is_king_checked(&self, color: Color) -> bool {
+        for rank in self.square.iter() {
+            for square in rank.iter() {
+                match square {
+                    SquareKind::Piece(piece, _) => {
+                        if let Piece::K(king) = piece {
+                            if king.get_color() == color && king.is_checked() {
+                                return true;
+                            }
+                        }
+                    },
+                    _ => (),
+                }
+            }
+        }
+
+        false
+    }
+
 }
 
 impl std::fmt::Display for Board {
@@ -187,7 +214,11 @@ impl std::fmt::Display for Board {
                         },
                         Piece::K(king) => {
                             let a = if king.get_color() == Color::Black { "♔" } else { "♚" }; 
-
+                            
+                            if king.is_checked() {
+                                println!("king is checked");
+                            }
+                            
                             match status {
                                 SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
                                 _ => a.to_owned()

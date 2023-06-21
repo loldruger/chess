@@ -18,7 +18,7 @@ impl Bishop {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
         
         let current_file = coord_from.get_file();
@@ -39,13 +39,15 @@ impl Bishop {
             };
 
             if !board.is_empty(position) {
-                let query = board.get_piece(position).unwrap();
+                let query = board.get_piece_mut(position).unwrap();
                 let color = query.get_color();
 
                 if color != self.color {
-                    if let super::Piece::K(mut king) = query {
-                        king.set_checked(true);
-                        is_king_pierced = true;
+                    if capture_status == MoveStatus::Capturable {
+                        if let super::Piece::K(ref mut king) = query {
+                            king.set_checked(true);
+                            is_king_pierced = true;
+                        }
                     }
                     valid_moves.push((position, capture_status));
                 } 

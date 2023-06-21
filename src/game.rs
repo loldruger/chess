@@ -1,21 +1,21 @@
 use crate::{board::Board, square::Square, pieces::{Piece, Color, MoveStatus}};
 
 pub enum GameState {
-    Playing { by_color: Color },
+    Playing { turn: Color },
     InCheck { by_color: Color },
-    Checkmate { by_color: Color },
+    // Checkmate { by_color: Color },
     Promoting { by_color: Color },
-    Stalemate,
+    // Stalemate,
 }
 
 impl GameState {
     pub fn get_by_color(&self) -> Color {
         match self {
-            GameState::Playing { by_color } => *by_color,
+            GameState::Playing { turn } => *turn,
             GameState::InCheck { by_color } => *by_color,
-            GameState::Checkmate { by_color } => *by_color,
+            // GameState::Checkmate { by_color } => *by_color,
             GameState::Promoting { by_color } => *by_color,
-            GameState::Stalemate => Color::White,
+            // GameState::Stalemate => Color::White,
         }
     }
 }
@@ -30,7 +30,7 @@ impl GameManager {
     pub fn new() -> GameManager {
         GameManager {
             board: Board::new(),
-            state: GameState::Playing { by_color: Color::White },
+            state: GameState::Playing { turn: Color::White },
             piece_selected: None,
         }
     }
@@ -52,7 +52,7 @@ impl GameManager {
     }
 
     pub fn select_piece(&mut self, coord: Square) -> Option<&Piece> {
-        self.piece_selected = self.board.get_piece(coord).copied();
+        self.piece_selected = self.board.get_piece(coord).cloned();
         
         if self.piece_selected.is_none() {
             return None;
@@ -97,7 +97,7 @@ impl GameManager {
                 }
         });
 
-        if let Piece::K(_) = piece {
+        if let Piece::K(king) = piece {            
             match color {
                 Color::Black => {
                     if coord_from == Square::E8 && coord_to == Square::G8 {
@@ -134,7 +134,7 @@ impl GameManager {
             self.board.update_capture_board();
             self.board.clear_marks();
             self.piece_selected = None;
-            self.state = GameState::Playing { by_color: color.opposite() };
+            self.state = GameState::Playing { turn: color.opposite() };
             Ok(())
         } else {
             Err((format!("cannot move piece from {coord_from} to {coord_to}"), color).0)

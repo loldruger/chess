@@ -55,29 +55,29 @@ impl King {
         match self.color {
             Color::Black => {
                 if board.get_piece(Square::H8).is_some_and(|x| x.get_color() == self.color) &&
-                board.is_empty(Square::F8) &&
-                board.is_empty(Square::G8) &&
-                !board.is_under_attack(Square::G8, Color::Black) &&
-                !board.is_under_attack(Square::F8, Color::Black) &&
-                self.is_checked == false
-            {
-                valid_moves.push((Square::G8, MoveStatus::Castling));
-                valid_moves.push((Square::F8, MoveStatus::Castling));
-            }
+                    board.is_empty(Square::F8) &&
+                    board.is_empty(Square::G8) &&
+                    !board.is_under_attack(Square::G8, Color::Black) &&
+                    !board.is_under_attack(Square::F8, Color::Black) &&
+                    self.is_checked == false
+                {
+                    valid_moves.push((Square::G8, MoveStatus::Castling));
+                    valid_moves.push((Square::F8, MoveStatus::Castling));
+                }
             
-            if board.get_piece(Square::A8).is_some_and(|x| x.get_color() == self.color) &&
-                board.is_empty(Square::B8) &&
-                board.is_empty(Square::C8) &&
-                board.is_empty(Square::D8) &&
-                !board.is_under_attack(Square::B8, Color::Black) &&
-                !board.is_under_attack(Square::C8, Color::Black) &&
-                !board.is_under_attack(Square::D8, Color::Black) &&
-                self.is_checked == false
-            {
-                valid_moves.push((Square::B8, MoveStatus::Castling));
-                valid_moves.push((Square::C8, MoveStatus::Castling));
-                valid_moves.push((Square::D8, MoveStatus::Castling));
-            }
+                if board.get_piece(Square::A8).is_some_and(|x| x.get_color() == self.color) &&
+                    board.is_empty(Square::B8) &&
+                    board.is_empty(Square::C8) &&
+                    board.is_empty(Square::D8) &&
+                    !board.is_under_attack(Square::B8, Color::Black) &&
+                    !board.is_under_attack(Square::C8, Color::Black) &&
+                    !board.is_under_attack(Square::D8, Color::Black) &&
+                    self.is_checked == false
+                {
+                    valid_moves.push((Square::B8, MoveStatus::Castling));
+                    valid_moves.push((Square::C8, MoveStatus::Castling));
+                    valid_moves.push((Square::D8, MoveStatus::Castling));
+                }
             },
             Color::White => {
                 if board.get_piece(Square::H1).is_some_and(|x| x.get_color() == self.color) &&
