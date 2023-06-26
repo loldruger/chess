@@ -23,7 +23,7 @@ impl std::fmt::Display for Square {
 
 impl Square {
     pub fn from_position(pos: (i32, i32)) -> Square {
-        if pos.0 > 8 || pos.1 > 8 {
+        if pos.0 > 7 || pos.1 > 7 {
             panic!("Invalid position");
         }
 
