@@ -30,9 +30,9 @@ impl Rook {
         let mut is_king_pierced = false;
 
         let mut lay = |file, rank, pierce_counter: &mut u32| {
-            let position = Square::from_position((rank, file));
+            let position = Square::from_position((file, rank));
             let mut capture_status = if *pierce_counter > 0 {
-                MoveStatus::CapturablePossibly
+                MoveStatus::Pierced
             } else {
                 MoveStatus::Capturable
             };

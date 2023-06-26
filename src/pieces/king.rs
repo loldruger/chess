@@ -1,4 +1,4 @@
-use crate::{square::{Square, SquareKind, SquareStatus}, board::Board};
+use crate::{square::Square, board::Board};
 
 use super::{Color, MoveStatus};
 
@@ -6,6 +6,7 @@ use super::{Color, MoveStatus};
 pub struct King {
     color: Color,
     is_checked: bool,
+    is_once_moved: bool,
 }
 
 impl King {
@@ -13,6 +14,7 @@ impl King {
         King {
             color,
             is_checked: false,
+            is_once_moved: false,
         }
     }
 
@@ -22,6 +24,10 @@ impl King {
 
     pub fn set_checked(&mut self, is_checked: bool) {
         self.is_checked = is_checked;
+    }
+
+    pub fn set_once_moved(&mut self) {
+        self.is_once_moved = true;
     }
 
     pub fn get_color(&self) -> Color {
@@ -59,7 +65,8 @@ impl King {
                     board.is_empty(Square::G8) &&
                     !board.is_under_attack(Square::G8, Color::Black) &&
                     !board.is_under_attack(Square::F8, Color::Black) &&
-                    self.is_checked == false
+                    !self.is_checked &&
+                    !self.is_once_moved
                 {
                     valid_moves.push((Square::G8, MoveStatus::Castling));
                     valid_moves.push((Square::F8, MoveStatus::Castling));
@@ -72,7 +79,8 @@ impl King {
                     !board.is_under_attack(Square::B8, Color::Black) &&
                     !board.is_under_attack(Square::C8, Color::Black) &&
                     !board.is_under_attack(Square::D8, Color::Black) &&
-                    self.is_checked == false
+                    !self.is_checked &&
+                    !self.is_once_moved
                 {
                     valid_moves.push((Square::B8, MoveStatus::Castling));
                     valid_moves.push((Square::C8, MoveStatus::Castling));
@@ -85,7 +93,8 @@ impl King {
                     board.is_empty(Square::G1) &&
                     !board.is_under_attack(Square::G1, Color::Black) &&
                     !board.is_under_attack(Square::F1, Color::Black) &&
-                    self.is_checked == false
+                    !self.is_checked &&
+                    !self.is_once_moved
                 {
                     valid_moves.push((Square::G1, MoveStatus::Castling));
                     valid_moves.push((Square::F1, MoveStatus::Castling));
@@ -98,7 +107,8 @@ impl King {
                     !board.is_under_attack(Square::B1, Color::Black) &&
                     !board.is_under_attack(Square::C1, Color::Black) &&
                     !board.is_under_attack(Square::D1, Color::Black) &&
-                    self.is_checked == false
+                    !self.is_checked &&
+                    !self.is_once_moved
                 {
                     valid_moves.push((Square::B1, MoveStatus::Castling));
                     valid_moves.push((Square::C1, MoveStatus::Castling));

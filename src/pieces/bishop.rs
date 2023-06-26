@@ -33,7 +33,7 @@ impl Bishop {
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
             let mut capture_status = if *pierce_counter > 0 {
-                MoveStatus::CapturablePossibly
+                MoveStatus::Pierced
             } else {
                 MoveStatus::Capturable
             };

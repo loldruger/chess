@@ -8,7 +8,7 @@ pub struct Board {
 impl Board {
     pub fn new() -> Board {
         Board {
-            square: [[SquareKind::Empty(SquareStatus::Normal); 8]; 8],
+            square: [[SquareKind::Empty(SquareStatus::None); 8]; 8],
             capture_board: Vec::new(),
 
         }
@@ -22,13 +22,13 @@ impl Board {
             return Err("Square is occupied!");
         }
 
-        self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::Normal);
+        self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::None);
         
         piece.get_valid_moves(self, coord)
             .iter()
             .for_each(|i| {
                 match (*i).1 {
-                    MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                    MoveStatus::Capturable | MoveStatus::Pierced => self.capture_board.push(((*i).0, piece.get_color())),
                     _ => (),
                 }
             });
@@ -106,10 +106,10 @@ impl Board {
         for rank in self.square.iter_mut() {
             for square in rank.iter_mut() {
                 match square {
-                    SquareKind::Empty(SquareStatus::Capturable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
-                    SquareKind::Empty(SquareStatus::Vulnerable {..}) => *square = SquareKind::Empty(SquareStatus::Normal),
-                    SquareKind::Piece(piece, SquareStatus::Capturable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
-                    SquareKind::Piece(piece, SquareStatus::Vulnerable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::Normal),
+                    SquareKind::Empty(SquareStatus::Capturable {..}) => *square = SquareKind::Empty(SquareStatus::None),
+                    SquareKind::Empty(SquareStatus::Vulnerable {..}) => *square = SquareKind::Empty(SquareStatus::None),
+                    SquareKind::Piece(piece, SquareStatus::Capturable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::None),
+                    SquareKind::Piece(piece, SquareStatus::Vulnerable {..}) => *square = SquareKind::Piece(*piece, SquareStatus::None),
                     _ => (),
                 }
             }
@@ -125,7 +125,7 @@ impl Board {
                     SquareKind::Piece(piece, _) => {
                         piece.get_valid_moves(self, Square::from_position((j as i32, i as i32))).iter().for_each(|i| {
                             match (*i).1 {
-                                MoveStatus::Capturable | MoveStatus::CapturablePossibly => self.capture_board.push(((*i).0, piece.get_color())),
+                                MoveStatus::Capturable | MoveStatus::Pierced => self.capture_board.push(((*i).0, piece.get_color())),
                                 _ => (),
                             }
                         });
@@ -135,103 +135,95 @@ impl Board {
             }
         }
     }
-
-    pub fn is_king_checked(&self, color: Color) -> bool {
-        for rank in self.square.iter() {
-            for square in rank.iter() {
-                match square {
-                    SquareKind::Piece(piece, _) => {
-                        if let Piece::K(king) = piece {
-                            if king.get_color() == color && king.is_checked() {
-                                return true;
-                            }
-                        }
-                    },
-                    _ => (),
-                }
-            }
-        }
-
-        false
-    }
-
 }
 
-impl std::fmt::Display for Board {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "  A B C D E F G H")?;
-        for (i, rank) in self.square.iter().rev().enumerate() {
-            write!(f, "{} ", 8 - i)?;
-            for symbol in rank {
-                let a = match symbol {
+use std::fmt;
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "   A B C D E F G H")?;
+        writeln!(f, "  ╔════════════════╗")?;
+        for rank in (0..8).rev() {
+            write!(f, "{} ║", rank + 1)?;
+            for file in 0..8 {
+                if (file + rank) % 2 == 1 {
+                    write!(f, "\x1b[48;5;235m")?;
+                } else {
+                    write!(f, "\x1b[48;5;250m")?;
+                }
+                match self.square[file][rank] {
                     SquareKind::Empty(status) => {
                         match status {
-                            SquareStatus::Normal => "_".to_owned(),
-                            SquareStatus::Capturable {..} => "X".to_owned(),
-                            SquareStatus::Vulnerable {..} => "V".to_owned(),
+                            SquareStatus::None => {
+                                write!(f, "  ")?;
+                            },
+                            SquareStatus::Capturable {..} => {
+                                write!(f, "\x1b[31mｘ\x1b[0m")?;
+                            },
+                            SquareStatus::Movable {..} => {
+                                write!(f, "\x1b[31mｘ\x1b[0m")?;
+                            },
+                            SquareStatus::Vulnerable { .. } => {
+                                // write!(f, "\x1b[41;5;250m  \x1b[0m")?;
+                                write!(f, "  ")?;
+                            },
                         }
                     },
-                    SquareKind::Piece(piece, status) => match piece {
-                        Piece::P(pawn) => {
-                            let a = if pawn.get_color() == Color::Black { "♙" } else { "♟" };
-
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
-                        Piece::B(bishop) => {
-                            let a = if bishop.get_color() == Color::Black { "♗" } else { "♝" }; 
-                            
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
-                        Piece::N(knight) => {
-                            let a = if knight.get_color() == Color::Black { "♘" } else { "♞" }; 
-                            
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
-                        Piece::R(rook) => {
-                            let a = if rook.get_color() == Color::Black { "♖" } else { "♜" }; 
-
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
-                        Piece::Q(queen) => {
-                            let a = if queen.get_color() == Color::Black { "♕" } else { "♛" }; 
-                            
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
-                        Piece::K(king) => {
-                            let a = if king.get_color() == Color::Black { "♔" } else { "♚" }; 
-                            
-                            if king.is_checked() {
-                                println!("king is checked");
-                            }
-                            
-                            match status {
-                                SquareStatus::Capturable { .. } => format!("\x1b[0;31m{a}\x1b[0;37m"),
-                                _ => a.to_owned()
-                            }
-                        },
+                    SquareKind::Piece(piece, _) => {
+                        match piece {
+                            Piece::P(pawn) => {
+                                if pawn.get_color() == Color::Black {
+                                    write!(f, "♙ ")?;
+                                } else {
+                                    write!(f, "♟ ")?;
+                                }
+                            },
+                            Piece::R(rook) => {
+                                if rook.get_color() == Color::Black {
+                                    write!(f, "♖ ")?;
+                                } else {
+                                    write!(f, "♜ ")?;
+                                }
+                            },
+                            Piece::N(knight) => {
+                                if knight.get_color() == Color::Black {
+                                    write!(f, "♘ ")?;
+                                } else {
+                                    write!(f, "♞ ")?;
+                                }
+                            },
+                            Piece::B(bishop) => {
+                                if bishop.get_color() == Color::Black {
+                                    write!(f, "♗ ")?;
+                                } else {
+                                    write!(f, "♝ ")?;
+                                }
+                            },
+                            Piece::Q(queen) => {
+                                if queen.get_color() == Color::Black {
+                                    write!(f, "♕ ")?;
+                                } else {
+                                    write!(f, "♛ ")?;
+                                }
+                            },
+                            Piece::K(king) => {
+                                if king.get_color() == Color::Black {
+                                    write!(f, "♔ ")?;
+                                } else {
+                                    write!(f, "♚ ")?;
+                                }
+                            },
+                        }
                     },
-                };
-                write!(f, "{} ", a)?;
+                }
+                
+                write!(f, "\x1b[0m")?;
             }
-            write!(f, "{} ", 8 - i)?;
-            writeln!(f)?;
+            writeln!(f, "║ {}", rank + 1)?;
         }
-        writeln!(f, "  A B C D E F G H")?;
+        writeln!(f, "  ╚════════════════╝")?;
+        writeln!(f, "   A B C D E F G H")?;
+
         Ok(())
     }
 }

@@ -17,8 +17,9 @@ use crate::{board::Board, square::Square};
 #[derive(PartialEq)]
 pub enum MoveStatus {
     Capturable,
-    CapturablePossibly,
+    Pierced,
     UnCapturable,
+    EnPassant,
     Castling,
     Movable
 }

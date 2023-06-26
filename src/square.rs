@@ -23,7 +23,7 @@ impl std::fmt::Display for Square {
 
 impl Square {
     pub fn from_position(pos: (i32, i32)) -> Square {
-        if pos.0 > 7 || pos.1 > 7 {
+        if pos.0 > 8 || pos.1 > 8 {
             panic!("Invalid position");
         }
 
@@ -60,19 +60,20 @@ impl Square {
     pub fn get_rank(self) -> i32 {
         let calc = self as u8;
 
-        (calc / 8) as i32
+        (calc % 8) as i32
     }
 
     pub fn get_file(self) -> i32 {
         let calc = self as u8;
 
-        (calc % 8) as i32
+        (calc / 8) as i32
     }
 }
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum SquareStatus {
-    Normal,
+    None,
+    Movable { by_color: Color },
     Capturable { by_color: Color },
     Vulnerable { by_color: Color },
 }

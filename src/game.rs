@@ -1,11 +1,9 @@
-use crate::{board::Board, square::Square, pieces::{Piece, Color, MoveStatus}};
+use crate::{board::Board, square::Square, pieces::{Piece, Color, MoveStatus, Pawn}};
 
 pub enum GameState {
     Playing { turn: Color },
     InCheck { by_color: Color },
-    // Checkmate { by_color: Color },
-    Promoting { by_color: Color },
-    // Stalemate,
+    Promoting { pawn: Pawn },
 }
 
 impl GameState {
@@ -13,16 +11,14 @@ impl GameState {
         match self {
             GameState::Playing { turn } => *turn,
             GameState::InCheck { by_color } => *by_color,
-            // GameState::Checkmate { by_color } => *by_color,
-            GameState::Promoting { by_color } => *by_color,
-            // GameState::Stalemate => Color::White,
+            GameState::Promoting { pawn } =>  pawn.get_color(),
         }
     }
 }
 
 pub struct GameManager {
     board: Board,
-    pub state: GameState,
+    state: GameState,
     piece_selected: Option<Piece>,
 }
 
@@ -41,6 +37,10 @@ impl GameManager {
 
     pub fn get_state(&self) -> &GameState {
         &self.state
+    }
+
+    pub fn set_state(&mut self, state: GameState) {
+        self.state = state;
     }
 
     pub fn get_board(&self) -> &Board {
@@ -68,6 +68,8 @@ impl GameManager {
             .for_each(|i| {
                 match (*i).1 {
                     MoveStatus::Capturable => self.board.mark_captureable((*i).0, by_color),
+                    MoveStatus::EnPassant => self.board.mark_captureable((*i).0, by_color),
+                    
                     _ => self.board.mark_vulnerable((*i).0, by_color),
                 }
             });
@@ -93,43 +95,58 @@ impl GameManager {
                     MoveStatus::Capturable => true,
                     MoveStatus::Movable => true,
                     MoveStatus::Castling => true,
+                    MoveStatus::EnPassant => true,
                     _ => false,
                 }
         });
 
-        if let Piece::K(king) = piece {            
-            match color {
-                Color::Black => {
-                    if coord_from == Square::E8 && coord_to == Square::G8 {
-                        self.board.move_piece(Square::H8, Square::F8).ok();
-                    } else if coord_from == Square::E8 && coord_to == Square::C8 {
-                        self.board.move_piece(Square::A8, Square::D8).ok();
-                    } else if coord_from == Square::E8 && coord_to == Square::B8 {
-                        self.board.move_piece(Square::A8, Square::D8).ok();
-                        coord_to = Square::C8;
-                    }
-                },
-                Color::White => {
-                    if coord_from == Square::E1 && coord_to == Square::G1 {
-                        self.board.move_piece(Square::H1, Square::F1).ok();
-                    } else if coord_from == Square::E1 && coord_to == Square::C1 {
-                        self.board.move_piece(Square::A1, Square::D1).ok();
-                    } else if coord_from == Square::E1 && coord_to == Square::B1 {
-                        self.board.move_piece(Square::A1, Square::D1).ok();
-                        coord_to = Square::C1;
-                    }
-                },
+        if condition {
+            if let Piece::K(_) = piece {
+                match color {
+                    Color::Black => {
+                        if coord_from == Square::E8 && coord_to == Square::G8 {
+                            self.board.move_piece(Square::H8, Square::F8).ok();
+                        } else if coord_from == Square::E8 && coord_to == Square::C8 {
+                            self.board.move_piece(Square::A8, Square::D8).ok();
+                        } else if coord_from == Square::E8 && coord_to == Square::B8 {
+                            self.board.move_piece(Square::A8, Square::D8).ok();
+                            coord_to = Square::C8;
+                        }
+                    },
+                    Color::White => {
+                        if coord_from == Square::E1 && coord_to == Square::G1 {
+                            self.board.move_piece(Square::H1, Square::F1).ok();
+                        } else if coord_from == Square::E1 && coord_to == Square::C1 {
+                            self.board.move_piece(Square::A1, Square::D1).ok();
+                        } else if coord_from == Square::E1 && coord_to == Square::B1 {
+                            self.board.move_piece(Square::A1, Square::D1).ok();
+                            coord_to = Square::C1;
+                        }
+                    },
+                }
             }
-        }
 
-        if let Piece::P(_) = piece {
-            match color {
-                Color::Black => {},
-                Color::White => {},
+            if let Piece::P(pawn) = piece {
+                match color {
+                    Color::Black => {
+                        if coord_from.get_file() == 1 && coord_to.get_file() == 0 {
+                            self.set_state(GameState::Promoting { pawn });
+                        }
+                    },
+                    Color::White => {
+                        if coord_from.get_file() == 6 && coord_to.get_file() == 7 {
+                            self.set_state(GameState::Promoting { pawn });
+                        }
+                    },
+                }
             }
         }
 
         if condition {
+            if let Piece::K(ref mut king) = self.board.get_piece_mut(coord_from).unwrap() {
+                king.set_checked(false);
+                king.set_once_moved();
+            }
             self.board.move_piece(coord_from, coord_to).ok();
             self.board.update_capture_board();
             self.board.clear_marks();

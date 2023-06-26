@@ -35,6 +35,7 @@ impl Knight {
     
             if target_file >= 0 && target_file < 8 && target_rank >= 0 && target_rank < 8 {
                 let position = Square::from_position((target_rank, target_file));
+                
                 if !board.is_empty(position) {
                     let query = board.get_piece_mut(position).unwrap();
                     let color = query.get_color();
