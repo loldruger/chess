@@ -5,6 +5,7 @@ use super::{Color, MoveStatus};
 #[derive(Clone, Copy)]
 pub struct King {
     color: Color,
+    coord: Square,
     is_checked: bool,
     is_once_moved: bool,
 }
@@ -13,6 +14,7 @@ impl King {
     pub fn new(color: Color) -> King {
         King {
             color,
+            coord: Square::None,
             is_checked: false,
             is_once_moved: false,
         }
@@ -30,6 +32,14 @@ impl King {
         self.is_once_moved = true;
     }
 
+    pub fn set_coord(&mut self, coord: Square) {
+        self.coord = coord;
+    }
+
+    pub fn get_coord(&self) -> Square {
+        self.coord
+    }
+
     pub fn get_color(&self) -> Color {
         self.color
     }
@@ -37,8 +47,8 @@ impl King {
     pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
 
-        let current_file = coord_from.get_rank();
-        let current_rank = coord_from.get_file();
+        let current_file = coord_from.get_file();
+        let current_rank = coord_from.get_rank();
 
         let direction = [
             (-1, -1), (-1, 0), (-1, 1),

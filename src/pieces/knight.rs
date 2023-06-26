@@ -5,15 +5,25 @@ use super::{Color, MoveStatus};
 #[derive(Clone, Copy)]
 pub struct Knight {
     color: Color,
+    coord: Square,
 }
 
 impl Knight {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
         }
     }
 
+    pub fn set_coord(&mut self, coord: Square) {
+        self.coord = coord;
+    }
+
+    pub fn get_coord(&self) -> Square {
+        self.coord
+    }
+    
     pub fn get_color(&self) -> Color {
         self.color
     }

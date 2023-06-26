@@ -18,7 +18,7 @@ fn main() {
     game.get_board_mut().spawn(Square::E5, Piece::P(Pawn::new(Color::Black))).ok();
     game.get_board_mut().spawn(Square::C7, Piece::R(Rook::new(Color::Black))).ok();
     game.get_board_mut().spawn(Square::A4, Piece::R(Rook::new(Color::Black))).ok();
-    game.get_board_mut().spawn(Square::D6, Piece::K(King::new(Color::Black))).ok();
+    game.get_board_mut().spawn(Square::D6, Piece::K(King::new(Color::White))).ok();
 
     print!("{}", game.get_board());
 

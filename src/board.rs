@@ -14,14 +14,14 @@ impl Board {
         }
     }
 
-    pub fn spawn(&mut self, coord: Square, piece: Piece) -> Result<(), &'static str> {
+    pub fn spawn(&mut self, coord: Square, mut piece: Piece) -> Result<(), &'static str> {
         let rank = coord.get_rank() as usize;
         let file = coord.get_file() as usize;
         
         if let Some(_) = self.square[file][rank].get_piece() {
             return Err("Square is occupied!");
         }
-
+        piece.set_coord(coord);
         self.square[file][rank] = SquareKind::Piece(piece, SquareStatus::None);
         
         piece.get_valid_moves(self, coord)
@@ -72,7 +72,8 @@ impl Board {
         let file_to = coord_to.get_file() as usize;
 
         match self.square[file_from][rank_from] {
-            SquareKind::Piece(piece, status) => {
+            SquareKind::Piece(mut piece, status) => {
+                piece.set_coord(coord_to);
                 self.square[file_from][rank_from] = SquareKind::Empty(status);
                 self.square[file_to][rank_to] = SquareKind::Piece(piece, status);
 
@@ -161,56 +162,57 @@ impl fmt::Display for Board {
                                 write!(f, "\x1b[31mｘ\x1b[0m")?;
                             },
                             SquareStatus::Movable {..} => {
-                                write!(f, "\x1b[31mｘ\x1b[0m")?;
+                                write!(f, "\x1b[31m  \x1b[0m")?;
                             },
-                            SquareStatus::Vulnerable { .. } => {
+                            SquareStatus::Vulnerable {..} => {
                                 // write!(f, "\x1b[41;5;250m  \x1b[0m")?;
                                 write!(f, "  ")?;
                             },
                         }
                     },
-                    SquareKind::Piece(piece, _) => {
+                    SquareKind::Piece(piece, status) => {
+                        if let SquareStatus::Capturable { by_color } = status {
+                            if by_color == piece.get_color().opposite() {
+                                write!(f, "\x1b[31m")?;
+                            } else {
+                                write!(f, "\x1b[32m")?;
+                            }
+                        }
                         match piece {
                             Piece::P(pawn) => {
-                                if pawn.get_color() == Color::Black {
-                                    write!(f, "♙ ")?;
-                                } else {
-                                    write!(f, "♟ ")?;
-                                }
-                            },
-                            Piece::R(rook) => {
-                                if rook.get_color() == Color::Black {
-                                    write!(f, "♖ ")?;
-                                } else {
-                                    write!(f, "♜ ")?;
+                                match pawn.get_color() {
+                                    Color::White => write!(f, "♟ ")?,
+                                    Color::Black => write!(f, "♙ ")?,
                                 }
                             },
                             Piece::N(knight) => {
-                                if knight.get_color() == Color::Black {
-                                    write!(f, "♘ ")?;
-                                } else {
-                                    write!(f, "♞ ")?;
+                                match knight.get_color() {
+                                    Color::White => write!(f, "♞ ")?,
+                                    Color::Black => write!(f, "♘ ")?,
                                 }
                             },
                             Piece::B(bishop) => {
-                                if bishop.get_color() == Color::Black {
-                                    write!(f, "♗ ")?;
-                                } else {
-                                    write!(f, "♝ ")?;
+                                match bishop.get_color() {
+                                    Color::White => write!(f, "♝ ")?,
+                                    Color::Black => write!(f, "♗ ")?,
+                                }
+                            },
+                            Piece::R(rook) => {
+                                match rook.get_color() {
+                                    Color::White => write!(f, "♜ ")?,
+                                    Color::Black => write!(f, "♖ ")?,
                                 }
                             },
                             Piece::Q(queen) => {
-                                if queen.get_color() == Color::Black {
-                                    write!(f, "♕ ")?;
-                                } else {
-                                    write!(f, "♛ ")?;
+                                match queen.get_color() {
+                                    Color::White => write!(f, "♛ ")?,
+                                    Color::Black => write!(f, "♕ ")?,
                                 }
                             },
                             Piece::K(king) => {
-                                if king.get_color() == Color::Black {
-                                    write!(f, "♔ ")?;
-                                } else {
-                                    write!(f, "♚ ")?;
+                                match king.get_color() {
+                                    Color::White => write!(f, "♚ ")?,
+                                    Color::Black => write!(f, "♔ ")?,
                                 }
                             },
                         }

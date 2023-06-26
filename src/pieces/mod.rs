@@ -18,7 +18,7 @@ use crate::{board::Board, square::Square};
 pub enum MoveStatus {
     Capturable,
     Pierced,
-    UnCapturable,
+    Stuck,
     EnPassant,
     Castling,
     Movable
@@ -69,6 +69,28 @@ impl Piece {
             Piece::R(p) => p.get_valid_moves(board, coord),
             Piece::Q(p) => p.get_valid_moves(board, coord),
             Piece::K(p) => p.get_valid_moves(board, coord),
+        }
+    }
+
+    pub fn set_coord(&mut self, coord: Square) {
+        match self {
+            Piece::P(p) => p.set_coord(coord),
+            Piece::B(p) => p.set_coord(coord),
+            Piece::N(p) => p.set_coord(coord),
+            Piece::R(p) => p.set_coord(coord),
+            Piece::Q(p) => p.set_coord(coord),
+            Piece::K(p) => p.set_coord(coord),
+        }
+    }
+
+    pub fn get_coord(&self) -> Square {
+        match self {
+            Piece::P(p) => p.get_coord(),
+            Piece::B(p) => p.get_coord(),
+            Piece::N(p) => p.get_coord(),
+            Piece::R(p) => p.get_coord(),
+            Piece::Q(p) => p.get_coord(),
+            Piece::K(p) => p.get_coord(),
         }
     }
 }

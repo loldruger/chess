@@ -5,15 +5,25 @@ use super::{Color, MoveStatus};
 #[derive(Clone, Copy)]
 pub struct Rook {
     color: Color,
+    coord: Square,
 }
 
 impl Rook {
     pub fn new(color: Color) -> Self {
         Self {
             color,
+            coord: Square::None,
         }
     }
 
+    pub fn set_coord(&mut self, coord: Square) {
+        self.coord = coord;
+    }
+
+    pub fn get_coord(&self) -> Square {
+        self.coord
+    }
+    
     pub fn get_color(&self) -> Color {
         self.color
     }
@@ -55,7 +65,7 @@ impl Rook {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = MoveStatus::UnCapturable;
+                    capture_status = MoveStatus::Stuck;
                 }
 
                 if *pierce_counter < 2 {
