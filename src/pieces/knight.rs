@@ -2,7 +2,7 @@ use crate::{board::Board, square::Square};
 
 use super::{Color, MoveStatus};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct Knight {
     color: Color,
     coord: Square,
@@ -51,18 +51,22 @@ impl Knight {
                     let color = query.get_color();
     
                     if color != self.color {
-                        valid_moves.push((position, MoveStatus::Capturable));
+                        valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
 
                         if let super::Piece::K(ref mut king) = query {
                             king.set_checked(true);
                         }
                     }
                 } else {
-                    valid_moves.push((position, MoveStatus::Capturable));
+                    valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
             }
         }
     
         valid_moves
+    }
+
+    pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &'static str> {
+        board.move_piece(self.coord, coord_to)
     }
 }

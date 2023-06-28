@@ -1,7 +1,6 @@
-use crate::pieces::{Piece, Color};
+use crate::pieces::{Piece, MoveStatus};
 
-#[derive(Copy, Clone, PartialEq, Eq)]
-
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Square {
     A1, A2, A3, A4, A5, A6, A7, A8,
     B1, B2, B3, B4, B5, B6, B7, B8,
@@ -12,13 +11,6 @@ pub enum Square {
     G1, G2, G3, G4, G5, G6, G7, G8,
     H1, H2, H3, H4, H5, H6, H7, H8,
     None
-}
-
-impl std::fmt::Display for Square {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let calc = *self as u8;
-        write!(f, "{:?}", ((calc / 8) as i32, (calc % 8) as i32))
-    }
 }
 
 impl Square {
@@ -70,55 +62,8 @@ impl Square {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
-pub enum SquareStatus {
-    None,
-    Movable { by_color: Color },
-    Capturable { by_color: Color },
-    Vulnerable { by_color: Color },
-}
-
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum SquareKind {
-    Empty(SquareStatus),
-    Piece(Piece, SquareStatus)
-}
-
-impl SquareKind {
-    pub fn get_piece(&self) -> Option<&Piece> {
-        match self {
-            SquareKind::Piece(piece, _) => Some(piece),
-            _ => None,
-        }
-    }
-
-    pub fn get_piece_mut(&mut self) -> Option<&mut Piece> {
-        match self {
-            SquareKind::Piece(ref mut piece, _) => Some(piece),
-            _ => None,
-        }
-    }
-
-    pub fn is_under_attack(&self, by_color: Color) -> bool {
-        match self {
-            SquareKind::Empty(SquareStatus::Capturable {by_color}) => true,
-            SquareKind::Piece(_, SquareStatus::Capturable {by_color}) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_vulnerable(&self, by_color: Color) -> bool {
-        match self {
-            SquareKind::Empty(SquareStatus::Vulnerable {by_color}) => true,
-            SquareKind::Piece(_, SquareStatus::Vulnerable {by_color}) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        match self {
-            SquareKind::Empty(_) => true,
-            _ => false,
-        }
-    }
+    Empty(MoveStatus),
+    Occupied(Piece, MoveStatus),
 }

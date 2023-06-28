@@ -2,7 +2,7 @@ use crate::{square::Square, board::Board};
 
 use super::{Color, MoveStatus};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct Bishop {
     color: Color,
     coord: Square,
@@ -43,9 +43,9 @@ impl Bishop {
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
             let mut capture_status = if *pierce_counter > 0 {
-                MoveStatus::Pierced
+                MoveStatus::Pierced { by_color: self.color, activated: false }
             } else {
-                MoveStatus::Capturable
+                MoveStatus::Capturable { by_color: self.color, activated: false }
             };
 
             if !board.is_empty(position) {
@@ -53,7 +53,9 @@ impl Bishop {
                 let color = query.get_color();
 
                 if color != self.color {
-                    if capture_status == MoveStatus::Capturable {
+                    let status = MoveStatus::Capturable { by_color: self.color, activated: false };
+
+                    if capture_status == status {
                         if let super::Piece::K(ref mut king) = query {
                             king.set_checked(true);
                             is_king_pierced = true;
@@ -65,7 +67,7 @@ impl Bishop {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = MoveStatus::Stuck;
+                    capture_status = MoveStatus::None;
                 }
 
                 if *pierce_counter < 2 {
@@ -91,5 +93,9 @@ impl Bishop {
         }
 
         valid_moves
+    }
+
+    pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &'static str> {
+        board.move_piece(self.coord, coord_to)
     }
 }

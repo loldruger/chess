@@ -14,32 +14,17 @@ pub use king::King;
 
 use crate::{board::Board, square::Square};
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum MoveStatus {
-    Capturable,
-    Pierced,
-    Stuck,
-    EnPassant,
-    Castling,
-    Movable
+    None,
+    Capturable { by_color: Color, activated: bool },
+    Pierced  { by_color: Color, activated: bool },
+    EnPassant { by_color: Color, activated: bool },
+    Castling { by_color: Color, activated: bool },
+    Movable { by_color: Color, activated: bool },
 }
 
-#[derive(Copy, Clone, PartialEq)]
-pub enum Color {
-    White,
-    Black
-}
-
-impl Color {
-    pub fn opposite(&self) -> Color {
-        match self {
-            Color::White => Color::Black,
-            Color::Black => Color::White,
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub enum Piece {
     P(Pawn),
     N(Knight),
@@ -72,6 +57,17 @@ impl Piece {
         }
     }
 
+    pub fn get_coord(&self) -> Square {
+        match self {
+            Piece::P(p) => p.get_coord(),
+            Piece::B(p) => p.get_coord(),
+            Piece::N(p) => p.get_coord(),
+            Piece::R(p) => p.get_coord(),
+            Piece::Q(p) => p.get_coord(),
+            Piece::K(p) => p.get_coord(),
+        }
+    }
+
     pub fn set_coord(&mut self, coord: Square) {
         match self {
             Piece::P(p) => p.set_coord(coord),
@@ -83,15 +79,29 @@ impl Piece {
         }
     }
 
-    pub fn get_coord(&self) -> Square {
+    pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &str> {
         match self {
-            Piece::P(p) => p.get_coord(),
-            Piece::B(p) => p.get_coord(),
-            Piece::N(p) => p.get_coord(),
-            Piece::R(p) => p.get_coord(),
-            Piece::Q(p) => p.get_coord(),
-            Piece::K(p) => p.get_coord(),
+            Piece::P(p) => p.move_to(board, coord_to),
+            Piece::B(p) => p.move_to(board, coord_to),
+            Piece::N(p) => p.move_to(board, coord_to),
+            Piece::R(p) => p.move_to(board, coord_to),
+            Piece::Q(p) => p.move_to(board, coord_to),
+            Piece::K(p) => p.move_to(board, coord_to),
         }
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Color {
+    White,
+    Black,
+}
+
+impl Color {
+    pub fn opposite(&self) -> Color {
+        match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        }
+    }
+}

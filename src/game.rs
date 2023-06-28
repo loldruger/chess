@@ -6,25 +6,16 @@ pub enum GameState {
     Promoting { pawn: Pawn },
 }
 
-impl GameState {
-    pub fn get_by_color(&self) -> Color {
-        match self {
-            GameState::Playing { turn } => *turn,
-            GameState::InCheck { by_color } => *by_color,
-            GameState::Promoting { pawn } =>  pawn.get_color(),
-        }
-    }
-}
-
 pub struct GameManager {
     board: Board,
     state: GameState,
     piece_selected: Option<Piece>,
+
 }
 
 impl GameManager {
-    pub fn new() -> GameManager {
-        GameManager {
+    pub fn new() -> Self {
+        Self {
             board: Board::new(),
             state: GameState::Playing { turn: Color::White },
             piece_selected: None,
@@ -32,15 +23,11 @@ impl GameManager {
     }
 
     pub fn get_turn(&self) -> Color {
-        self.state.get_by_color()
-    }
-
-    pub fn get_state(&self) -> &GameState {
-        &self.state
-    }
-
-    pub fn set_state(&mut self, state: GameState) {
-        self.state = state;
+        match self.state {
+            GameState::Playing { turn } => turn,
+            GameState::InCheck { by_color } => by_color,
+            GameState::Promoting { ref pawn } => pawn.get_color(),
+        }
     }
 
     pub fn get_board(&self) -> &Board {
@@ -51,15 +38,21 @@ impl GameManager {
         &mut self.board
     }
 
-    pub fn select_piece(&mut self, coord: Square) -> Option<&Piece> {
-        self.piece_selected = self.board.get_piece(coord).cloned();
-        
-        if self.piece_selected.is_none() {
-            return None;
-        }
+    pub fn get_state(&self) -> &GameState {
+        &self.state
+    }
 
-        let by_color = self.piece_selected.as_ref().unwrap().get_color();
-        
+    pub fn get_state_mut(&mut self) -> &mut GameState {
+        &mut self.state
+    }
+
+    pub fn select_piece(&mut self, coord: Square) -> Result<(), &str> {
+        let piece = self.board
+            .get_piece_mut(coord)
+            .ok_or("No piece found!")?;
+        let color = piece.get_color();
+
+        self.piece_selected = Some(piece.clone());
         self.piece_selected
             .as_ref()
             .unwrap()
@@ -67,94 +60,52 @@ impl GameManager {
             .iter()
             .for_each(|i| {
                 match (*i).1 {
-                    MoveStatus::Capturable => self.board.mark_captureable((*i).0, by_color),
-                    MoveStatus::EnPassant => self.board.mark_captureable((*i).0, by_color),
-                    
-                    _ => self.board.mark_vulnerable((*i).0, by_color),
+                    MoveStatus::Capturable {..} => self.board.mark_moves(MoveStatus::Capturable { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Pierced {..} => self.board.mark_moves(MoveStatus::Pierced { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::EnPassant {..} => self.board.mark_moves(MoveStatus::EnPassant { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Castling {..} => self.board.mark_moves(MoveStatus::Castling { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Movable {..} => self.board.mark_moves(MoveStatus::Movable { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::None => (),
                 }
             });
             
-        self.piece_selected.as_ref()
+        Ok(())
     }
 
-    pub fn move_piece(&mut self, coord_from: Square, coord_to: Square) -> Result<(), String> {
-        let mut coord_to = coord_to;
-        let piece = self.piece_selected.unwrap();
-        let color = piece.get_color();
+    pub fn move_piece(&mut self, coord_from: Square, coord_to: Square) -> Result<(), &str> {
+        let color = self.piece_selected.as_ref().unwrap().get_color();
 
         if coord_from == coord_to {
             self.board.clear_marks();
             self.piece_selected = None;
+            
             return Ok(());
         }
 
-        let condition = piece.get_valid_moves(&mut self.board, coord_from)
+        let condition = self.piece_selected
+            .as_ref()
+            .unwrap()
+            .get_valid_moves(&mut self.board, coord_from)
             .iter()
             .any(|i| {
                 (*i).0 == coord_to && match (*i).1 {
-                    MoveStatus::Capturable => true,
-                    MoveStatus::Movable => true,
-                    MoveStatus::Castling => true,
-                    MoveStatus::EnPassant => true,
+                    MoveStatus::Capturable {..} => true,
+                    MoveStatus::Movable {..} => true,
+                    MoveStatus::Castling {..} => true,
                     _ => false,
                 }
-        });
+            });
 
-        if condition {
-            if let Piece::K(_) = piece {
-                match color {
-                    Color::Black => {
-                        if coord_from == Square::E8 && coord_to == Square::G8 {
-                            self.board.move_piece(Square::H8, Square::F8).ok();
-                        } else if coord_from == Square::E8 && coord_to == Square::C8 {
-                            self.board.move_piece(Square::A8, Square::D8).ok();
-                        } else if coord_from == Square::E8 && coord_to == Square::B8 {
-                            self.board.move_piece(Square::A8, Square::D8).ok();
-                            coord_to = Square::C8;
-                        }
-                    },
-                    Color::White => {
-                        if coord_from == Square::E1 && coord_to == Square::G1 {
-                            self.board.move_piece(Square::H1, Square::F1).ok();
-                        } else if coord_from == Square::E1 && coord_to == Square::C1 {
-                            self.board.move_piece(Square::A1, Square::D1).ok();
-                        } else if coord_from == Square::E1 && coord_to == Square::B1 {
-                            self.board.move_piece(Square::A1, Square::D1).ok();
-                            coord_to = Square::C1;
-                        }
-                    },
-                }
-            }
-
-            if let Piece::P(pawn) = piece {
-                match color {
-                    Color::Black => {
-                        if coord_from.get_file() == 1 && coord_to.get_file() == 0 {
-                            self.set_state(GameState::Promoting { pawn });
-                        }
-                    },
-                    Color::White => {
-                        if coord_from.get_file() == 6 && coord_to.get_file() == 7 {
-                            self.set_state(GameState::Promoting { pawn });
-                        }
-                    },
-                }
-            }
+        if !condition {
+            return Err("Invalid move!");
         }
 
-        if condition {
-            if let Piece::K(ref mut king) = self.board.get_piece_mut(coord_from).unwrap() {
-                king.set_checked(false);
-                king.set_once_moved();
-            }
-            self.board.move_piece(coord_from, coord_to).ok();
-            self.board.update_capture_board();
-            self.board.clear_marks();
-            self.piece_selected = None;
-            self.state = GameState::Playing { turn: color.opposite() };
-            Ok(())
-        } else {
-            Err((format!("cannot move piece from {coord_from} to {coord_to}"), color).0)
-        }
+        self.piece_selected.as_mut().unwrap().move_to(&mut self.board, coord_to).unwrap();
+        self.piece_selected = None;
+        self.state = GameState::Playing { turn: color.opposite() };
+        self.board.clear_marks();
+        self.board.update_capture_board();
+
+        Ok(())
     }
 }

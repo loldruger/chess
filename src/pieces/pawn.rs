@@ -2,7 +2,7 @@ use crate::{board::Board, square::Square};
 
 use super::{Color, MoveStatus};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct Pawn {
     color: Color,
     coord: Square,
@@ -44,22 +44,22 @@ impl Pawn {
 
                 if board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable { by_color: self.color, activated: false }));
                     }
                 }
                 // Double move from the starting rank
                 if current_rank == 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank - 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank - 1)), MoveStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank - 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
                     }
                 }
                 // Capture diagonally to the left
                 if current_file > 0 && is_enemy_piece1 {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
                 // Capture diagonally to the right
                 if current_file < 7 && is_enemy_piece2 {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
             },
             Color::White => {
@@ -72,28 +72,28 @@ impl Pawn {
 
                 if target_rank <= 7 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable { by_color: self.color, activated: false }));
                     }
                 }
                 // Double move from the starting rank
                 if current_rank == 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank + 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank + 1)), MoveStatus::Movable));
+                        valid_moves.push((Square::from_position((current_file, target_rank + 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
                     }
                 }
                 // Capture diagonally to the left
                 if current_file > 0 && target_rank <= 7 && is_enemy_piece_left {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
                 // Capture diagonally to the right
                 if current_file < 7 && target_rank <= 7 && is_enemy_piece_right {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable));
+                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
 
                 if current_rank == 4 && is_enemy_piece_left_en_passant {
                     if let Some(piece) = board.get_piece(Square::from_position((current_file, current_rank))) {
                         if let super::Piece::P(_) = piece {
-                            valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::EnPassant));
+                            valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::EnPassant { by_color: self.color, activated: false }));
                         }
                     }
                 }
@@ -101,7 +101,7 @@ impl Pawn {
                 if current_rank == 4 && is_enemy_piece_right_en_passant {
                     if let Some(piece) = board.get_piece(Square::from_position((current_file, current_rank))) {
                         if let super::Piece::P(_) = piece {
-                            valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::EnPassant));
+                            valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::EnPassant { by_color: self.color, activated: false }));
                         }
                     }
                 }
@@ -109,6 +109,28 @@ impl Pawn {
         }
 
         valid_moves
+    }
+
+    pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &'static str> {
+        let rank_from = self.coord.get_rank() as usize;
+        let file_from = self.coord.get_file() as usize;
+        let rank_to = coord_to.get_rank() as usize;
+        let file_to = coord_to.get_file() as usize;
+        
+        match self.color {
+            Color::Black => {
+                if file_from == 1 && file_to == 0 {
+                    // self.set_state(GameState::Promoting { pawn });
+                }
+            },
+            Color::White => {
+                if file_from == 6 && file_to == 7 {
+                    // self.set_state(GameState::Promoting { pawn });
+                }
+            },
+        }
+        
+        board.move_piece(self.coord, coord_to)
     }
 
     pub fn try_into_queen(self) -> Option<super::Queen> {

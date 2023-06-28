@@ -1,30 +1,29 @@
-use std::io;
-
-use crate::{pieces::{Piece, Pawn, Color, Bishop, King, Rook, Knight, Queen}, square::Square};
-
 mod pieces;
 mod square;
 mod board;
 mod game;
 
+use std::io;
+
+use pieces::Piece::{P, N, B, R, Q, K};
+use square::Square;
+use board::Board;
+use game::GameManager;
+
+use crate::pieces::{Piece, Pawn, Color, Rook, King};
+
 fn main() {
-    let mut game = game::GameManager::new();
+    let mut game = GameManager::new();
+    game.get_board_mut().spawn(K(King::new(Color::White)), Square::B7).ok();
+    game.get_board_mut().spawn(P(Pawn::new(Color::White)), Square::B2).ok();
+    game.get_board_mut().spawn(R(Rook::new(Color::Black)), Square::B4).ok();
 
-    // game.get_board_mut().spawn(Square::A2, Piece::B(Bishop::new(Color::Black))).ok();
-    // game.get_board_mut().spawn(Square::B6, Piece::Q(Queen::new(Color::White))).ok();
-    // game.get_board_mut().spawn(Square::E3, Piece::K(King::new(Color::White))).ok();
-    // // game.get_board_mut().spawn(Square::E6, Piece::B(Bishop::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::D7, Piece::P(Pawn::new(Color::White))).ok();
-    game.get_board_mut().spawn(Square::E5, Piece::P(Pawn::new(Color::Black))).ok();
-    game.get_board_mut().spawn(Square::C7, Piece::R(Rook::new(Color::Black))).ok();
-    game.get_board_mut().spawn(Square::A4, Piece::R(Rook::new(Color::Black))).ok();
-    game.get_board_mut().spawn(Square::D6, Piece::K(King::new(Color::White))).ok();
-
+    // game.get_board_mut().clear_marks();
+    // board.move_piece(Square::A1, Square::A2).ok();
     print!("{}", game.get_board());
 
     let mut user_input = String::new();
     let stdin = io::stdin();
-
     loop {
         match &game.get_state() {
             game::GameState::Playing { turn } => {
@@ -44,7 +43,7 @@ fn main() {
                         continue;
                     }
             
-                    if game.select_piece(coord.unwrap()).is_none() {
+                    if game.select_piece(coord.unwrap()).is_err() {
                         println!("invalid piece");
                         user_input.clear();
                         continue;
@@ -73,24 +72,24 @@ fn main() {
                 
             },
             game::GameState::Promoting { pawn } => {
-                loop {
-                    println!("select a piece to promote to: (Q, R, B, N) ");
-                    stdin.read_line(&mut user_input).unwrap();
+                // loop {
+                //     println!("select a piece to promote to: (Q, R, B, N) ");
+                //     stdin.read_line(&mut user_input).unwrap();
 
-                    match user_input.trim() {
-                        "Q" | "q" => { pawn.try_into_queen(); break; },
-                        "R" | "r" => { pawn.try_into_rook(); break; },
-                        "B" | "b" => { pawn.try_into_bishop(); break; },
-                        "N" | "n" => { pawn.try_into_knight(); break; },
-                        _ => {
-                            println!("invalid input");
-                            user_input.clear();
-                            continue;
-                        }
-                    };
-                }
+                //     match user_input.trim() {
+                //         "Q" | "q" => { pawn.try_into_queen(); break; },
+                //         "R" | "r" => { pawn.try_into_rook(); break; },
+                //         "B" | "b" => { pawn.try_into_bishop(); break; },
+                //         "N" | "n" => { pawn.try_into_knight(); break; },
+                //         _ => {
+                //             println!("invalid input");
+                //             user_input.clear();
+                //             continue;
+                //         }
+                //     };
+                // }
 
-                user_input.clear();
+                // user_input.clear();
                 
             },
         }

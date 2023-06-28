@@ -2,7 +2,7 @@ use crate::{square::Square, board::Board};
 
 use super::{Color, MoveStatus};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct King {
     color: Color,
     coord: Square,
@@ -44,7 +44,7 @@ impl King {
         self.color
     }
 
-    pub fn get_valid_moves(&self, board: &Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
+    pub fn get_valid_moves(&self, board: &mut Board, coord_from: Square) -> Vec<(Square, MoveStatus)> {
         let mut valid_moves = Vec::new();
 
         let current_file = coord_from.get_file();
@@ -63,7 +63,7 @@ impl King {
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
                 if board.is_empty(position) {
-                    valid_moves.push((position, MoveStatus::Capturable));
+                    valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
                 }
             }
         }
@@ -78,8 +78,8 @@ impl King {
                     !self.is_checked &&
                     !self.is_once_moved
                 {
-                    valid_moves.push((Square::G8, MoveStatus::Castling));
-                    valid_moves.push((Square::F8, MoveStatus::Castling));
+                    valid_moves.push((Square::G8, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::F8, MoveStatus::Castling { by_color: self.color, activated: false }));
                 }
             
                 if board.get_piece(Square::A8).is_some_and(|x| x.get_color() == self.color) &&
@@ -92,9 +92,9 @@ impl King {
                     !self.is_checked &&
                     !self.is_once_moved
                 {
-                    valid_moves.push((Square::B8, MoveStatus::Castling));
-                    valid_moves.push((Square::C8, MoveStatus::Castling));
-                    valid_moves.push((Square::D8, MoveStatus::Castling));
+                    valid_moves.push((Square::B8, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::C8, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::D8, MoveStatus::Castling { by_color: self.color, activated: false }));
                 }
             },
             Color::White => {
@@ -106,8 +106,8 @@ impl King {
                     !self.is_checked &&
                     !self.is_once_moved
                 {
-                    valid_moves.push((Square::G1, MoveStatus::Castling));
-                    valid_moves.push((Square::F1, MoveStatus::Castling));
+                    valid_moves.push((Square::G1, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::F1, MoveStatus::Castling { by_color: self.color, activated: false }));
                 }
                 
                 if board.get_piece(Square::A1).is_some_and(|x| x.get_color() == self.color) &&
@@ -120,9 +120,9 @@ impl King {
                     !self.is_checked &&
                     !self.is_once_moved
                 {
-                    valid_moves.push((Square::B1, MoveStatus::Castling));
-                    valid_moves.push((Square::C1, MoveStatus::Castling));
-                    valid_moves.push((Square::D1, MoveStatus::Castling));
+                    valid_moves.push((Square::B1, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::C1, MoveStatus::Castling { by_color: self.color, activated: false }));
+                    valid_moves.push((Square::D1, MoveStatus::Castling { by_color: self.color, activated: false }));
                 }
             },
         }
@@ -131,7 +131,16 @@ impl King {
             .get_capture_board()
             .iter()
             .filter_map(|x| {
-                if x.1 == self.color.opposite() {
+                let color = match x.1 {
+                    MoveStatus::None => todo!(),
+                    MoveStatus::Capturable { by_color, .. } => by_color,
+                    MoveStatus::Pierced { by_color, .. } => by_color,
+                    MoveStatus::EnPassant { by_color, .. } => by_color,
+                    MoveStatus::Castling { by_color, .. } => by_color,
+                    MoveStatus::Movable { by_color, .. } => by_color,
+                };
+
+                if color == self.color.opposite() {
                     Some(x.0)
                 } else {
                     None
@@ -142,4 +151,34 @@ impl King {
         
         valid_moves
     }
+
+    pub fn move_to(&mut self, board: &mut Board, mut coord_to: Square) -> Result<(), &'static str> {
+        self.is_once_moved = true;
+
+        match self.color {
+            Color::Black => {
+                if self.coord == Square::E8 && coord_to == Square::G8 {
+                    board.move_piece(Square::H8, Square::F8).ok();
+                } else if self.coord == Square::E8 && coord_to == Square::C8 {
+                    board.move_piece(Square::A8, Square::D8).ok();
+                } else if self.coord == Square::E8 && coord_to == Square::B8 {
+                    board.move_piece(Square::A8, Square::D8).ok();
+                    coord_to = Square::C8;
+                }
+            },
+            Color::White => {
+                if self.coord == Square::E1 && coord_to == Square::G1 {
+                    board.move_piece(Square::H1, Square::F1).ok();
+                } else if self.coord == Square::E1 && coord_to == Square::C1 {
+                    board.move_piece(Square::A1, Square::D1).ok();
+                } else if self.coord == Square::E1 && coord_to == Square::B1 {
+                    board.move_piece(Square::A1, Square::D1).ok();
+                    coord_to = Square::C1;
+                }
+            },
+        }
+
+        board.move_piece(self.coord, coord_to)
+    }
+
 }

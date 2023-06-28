@@ -2,7 +2,7 @@ use crate::{board::Board, square::Square};
 
 use super::{Color, MoveStatus};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct Queen {
     color: Color,
     coord: Square,
@@ -47,9 +47,9 @@ impl Queen {
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
             let mut capture_status = if *pierce_counter > 0 {
-                MoveStatus::Pierced
+                MoveStatus::Pierced { by_color: self.color, activated: false }
             } else {
-                MoveStatus::Capturable
+                MoveStatus::Capturable { by_color: self.color, activated: false }
             };
 
             if !board.is_empty(position) {
@@ -67,7 +67,7 @@ impl Queen {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = MoveStatus::Stuck;
+                    capture_status = MoveStatus::None;
                 }
 
                 if *pierce_counter < 2 {
@@ -115,4 +115,8 @@ impl Queen {
         valid_moves
     }
 
+    pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &'static str> {
+        board.move_piece(self.coord, coord_to)
+    }
+    
 }
