@@ -18,6 +18,7 @@ use crate::{board::Board, square::Square};
 pub enum MoveStatus {
     None,
     Capturable { by_color: Color, activated: bool },
+    Threaten { by_color: Color, activated: bool },
     Pierced  { by_color: Color, activated: bool },
     EnPassant { by_color: Color, activated: bool },
     Castling { by_color: Color, activated: bool },

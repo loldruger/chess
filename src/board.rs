@@ -25,6 +25,7 @@ impl Board {
                     .for_each(|i| {
                         match (*i).1 {
                             MoveStatus::Capturable {..} => self.capture_board.push(((*i).0, (*i).1)),
+                            MoveStatus::Threaten {..} => self.capture_board.push(((*i).0, (*i).1)),
                             MoveStatus::Pierced  {..} => self.capture_board.push(((*i).0, (*i).1)),
                             _ => (),
                         }
@@ -103,6 +104,7 @@ impl Board {
                             .for_each(|i| {
                                 match (*i).1 {
                                     MoveStatus::Capturable {..} => self.capture_board.push(((*i).0, (*i).1)),
+                                    MoveStatus::Threaten {..} => self.capture_board.push(((*i).0, (*i).1)),
                                     MoveStatus::Pierced {..} => self.capture_board.push(((*i).0, (*i).1)),
                                     _ => (),
                                 }
@@ -151,12 +153,13 @@ impl Board {
                     SquareKind::Empty(_) => SquareKind::Empty(MoveStatus::None),
                     SquareKind::Occupied(piece, status) => {
                         let a = match status {
-                            MoveStatus::None => MoveStatus::None,
                             MoveStatus::Capturable { by_color, .. } => MoveStatus::Capturable { by_color: *by_color, activated: false },
+                            MoveStatus::Threaten { by_color, .. } => MoveStatus::Threaten { by_color: *by_color, activated: false },
                             MoveStatus::Pierced { by_color, .. } => MoveStatus::Pierced { by_color: *by_color, activated: false },
                             MoveStatus::EnPassant { by_color, .. } => MoveStatus::EnPassant { by_color: *by_color, activated: false },
                             MoveStatus::Castling { by_color, .. } => MoveStatus::Castling { by_color: *by_color, activated: false },
                             MoveStatus::Movable { by_color, .. } => MoveStatus::Movable { by_color: *by_color, activated: false },
+                            _ => MoveStatus::None,
                         };
         
                         SquareKind::Occupied(piece.clone(), a)

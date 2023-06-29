@@ -39,8 +39,8 @@ impl Pawn {
             Color::Black => {
                 let target_rank = current_rank - 1;
 
-                let is_enemy_piece1 = board.get_piece(Square::from_position((current_file - 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
-                let is_enemy_piece2 = board.get_piece(Square::from_position((current_file + 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece_left = board.get_piece(Square::from_position((current_file - 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece_right = board.get_piece(Square::from_position((current_file + 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
 
                 if board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
@@ -54,12 +54,22 @@ impl Pawn {
                     }
                 }
                 // Capture diagonally to the left
-                if current_file > 0 && is_enemy_piece1 {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
+                if current_file > 0 {
+                    let square = Square::from_position((current_file - 1, target_rank));
+                    if is_enemy_piece_left {
+                        valid_moves.push((square, MoveStatus::Capturable { by_color: self.color, activated: false }));
+                    } else {
+                        valid_moves.push((square, MoveStatus::Threaten { by_color: self.color, activated: false }));
+                    }
                 }
                 // Capture diagonally to the right
-                if current_file < 7 && is_enemy_piece2 {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
+                if current_file < 7 {
+                    let square = Square::from_position((current_file + 1, target_rank));
+                    if is_enemy_piece_right{
+                        valid_moves.push((square, MoveStatus::Capturable { by_color: self.color, activated: false }));
+                    } else {
+                        valid_moves.push((square, MoveStatus::Threaten { by_color: self.color, activated: false }));
+                    }
                 }
             },
             Color::White => {
@@ -82,12 +92,22 @@ impl Pawn {
                     }
                 }
                 // Capture diagonally to the left
-                if current_file > 0 && target_rank <= 7 && is_enemy_piece_left {
-                    valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
+                if current_file > 0 && target_rank <= 7 {
+                    let square = Square::from_position((current_file - 1, target_rank));
+                    if is_enemy_piece_left {
+                        valid_moves.push((square, MoveStatus::Capturable { by_color: self.color, activated: false }));
+                    } else {
+                        valid_moves.push((square, MoveStatus::Threaten { by_color: self.color, activated: false }));
+                    }
                 }
                 // Capture diagonally to the right
-                if current_file < 7 && target_rank <= 7 && is_enemy_piece_right {
-                    valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::Capturable { by_color: self.color, activated: false }));
+                if current_file < 7 && target_rank <= 7 {
+                    let square = Square::from_position((current_file + 1, target_rank));
+                    if is_enemy_piece_right{
+                        valid_moves.push((square, MoveStatus::Capturable { by_color: self.color, activated: false }));
+                    } else {
+                        valid_moves.push((square, MoveStatus::Threaten { by_color: self.color, activated: false }));
+                    }
                 }
 
                 if current_rank == 4 && is_enemy_piece_left_en_passant {

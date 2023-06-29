@@ -130,12 +130,13 @@ impl King {
             .iter()
             .filter_map(|x| {
                 let color = match x.1 {
-                    MoveStatus::None => todo!(),
                     MoveStatus::Capturable { by_color, .. } => by_color,
+                    MoveStatus::Threaten { by_color, .. } => by_color,
                     MoveStatus::Pierced { by_color, .. } => by_color,
                     MoveStatus::EnPassant { by_color, .. } => by_color,
                     MoveStatus::Castling { by_color, .. } => by_color,
                     MoveStatus::Movable { by_color, .. } => by_color,
+                    _ => todo!(),
                 };
 
                 if color == self.color.opposite() {

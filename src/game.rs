@@ -61,11 +61,12 @@ impl GameManager {
             .for_each(|i| {
                 match (*i).1 {
                     MoveStatus::Capturable {..} => self.board.mark_moves(MoveStatus::Capturable { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Threaten {..} => self.board.mark_moves(MoveStatus::Threaten { by_color: color, activated: true }, (*i).0),
                     MoveStatus::Pierced {..} => self.board.mark_moves(MoveStatus::Pierced { by_color: color, activated: true }, (*i).0),
                     MoveStatus::EnPassant {..} => self.board.mark_moves(MoveStatus::EnPassant { by_color: color, activated: true }, (*i).0),
                     MoveStatus::Castling {..} => self.board.mark_moves(MoveStatus::Castling { by_color: color, activated: true }, (*i).0),
                     MoveStatus::Movable {..} => self.board.mark_moves(MoveStatus::Movable { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::None => (),
+                    _ => (),
                 }
             });
             
