@@ -42,7 +42,7 @@ impl Bishop {
 
         let mut lay = |file, rank, pierce_counter: &mut u32| {
             let position = Square::from_position((rank, file));
-            let mut capture_status = if *pierce_counter > 0 {
+            let capture_status = if *pierce_counter > 0 {
                 MoveStatus::Pierced { by_color: self.color, activated: false }
             } else {
                 MoveStatus::Capturable { by_color: self.color, activated: false }
@@ -67,7 +67,7 @@ impl Bishop {
                 *pierce_counter += 1;
             } else {
                 if *pierce_counter > 0 && !is_king_pierced {
-                    capture_status = MoveStatus::None;
+                    // capture_status = MoveStatus::None;
                 }
 
                 if *pierce_counter < 2 {

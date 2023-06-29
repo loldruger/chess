@@ -62,9 +62,7 @@ impl King {
 
             if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
                 let position = Square::from_position((dest_file, dest_rank));
-                if board.is_empty(position) {
-                    valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
-                }
+                valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
             }
         }
         
