@@ -41,6 +41,20 @@ impl Board {
         }
     }
 
+    pub fn despawn(&mut self, square: Square) -> Result<(), &str> {
+        let file = square.get_file() as usize;
+        let rank = square.get_rank() as usize;
+
+        match self.square[file][rank] {
+            SquareKind::Empty(_) => Err("Square is empty"),
+            SquareKind::Occupied(_, _) => {
+                self.square[file][rank] = SquareKind::Empty(MoveStatus::None);
+                self.update_capture_board();
+                Ok(())
+            },
+        }
+    }
+
     pub fn is_empty(&self, square: Square) -> bool {
         let file = square.get_file() as usize;
         let rank = square.get_rank() as usize;
@@ -131,12 +145,14 @@ impl Board {
                 self.square[file_to][rank_to] = SquareKind::Occupied(piece.clone(), status);
                 self.square[file_from][rank_from] = SquareKind::Empty(status);
                 
+                self.update_capture_board();
+                
                 Ok(())  
             },
         }
     }
 
-    pub fn mark_moves(&mut self, move_kind: MoveStatus, coord: Square) {
+    pub fn mark_valid_moves(&mut self, move_kind: MoveStatus, coord: Square) {
         let file = coord.get_file() as usize;
         let rank = coord.get_rank() as usize;
         

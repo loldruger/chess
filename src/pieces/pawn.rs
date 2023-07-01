@@ -139,33 +139,33 @@ impl Pawn {
         
         match self.color {
             Color::Black => {
-                if file_from == 1 && file_to == 0 {
+                if rank_from == 1 && rank_to == 0 {
                     // self.set_state(GameState::Promoting { pawn });
                 }
             },
             Color::White => {
-                if file_from == 6 && file_to == 7 {
+                if rank_from == 6 && rank_to == 7 {
                     // self.set_state(GameState::Promoting { pawn });
-                }
+                } 
             },
         }
         
         board.move_piece(self.coord, coord_to)
     }
 
-    pub fn try_into_queen(self) -> Option<super::Queen> {
+    pub fn try_into_queen(&self) -> Option<super::Queen> {
         Some(super::Queen::new(self.color))
     }
 
-    pub fn try_into_knight(self) -> Option<super::Knight> {
+    pub fn try_into_knight(&self) -> Option<super::Knight> {
         Some(super::Knight::new(self.color))
     }
 
-    pub fn try_into_bishop(self) -> Option<super::Bishop> {
+    pub fn try_into_bishop(&self) -> Option<super::Bishop> {
         Some(super::Bishop::new(self.color))
     }
 
-    pub fn try_into_rook(self) -> Option<super::Rook> {
+    pub fn try_into_rook(&self) -> Option<super::Rook> {
         Some(super::Rook::new(self.color))
     }
 }

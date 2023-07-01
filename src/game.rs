@@ -9,8 +9,8 @@ pub enum GameState {
 pub struct GameManager {
     board: Board,
     state: GameState,
+    turn_count: u32,
     piece_selected: Option<Piece>,
-
 }
 
 impl GameManager {
@@ -18,6 +18,7 @@ impl GameManager {
         Self {
             board: Board::new(),
             state: GameState::Playing { turn: Color::White },
+            turn_count: 0,
             piece_selected: None,
         }
     }
@@ -60,12 +61,12 @@ impl GameManager {
             .iter()
             .for_each(|i| {
                 match (*i).1 {
-                    MoveStatus::Capturable {..} => self.board.mark_moves(MoveStatus::Capturable { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Threaten {..} => self.board.mark_moves(MoveStatus::Threaten { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Pierced {..} => self.board.mark_moves(MoveStatus::Pierced { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::EnPassant {..} => self.board.mark_moves(MoveStatus::EnPassant { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Castling {..} => self.board.mark_moves(MoveStatus::Castling { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Movable {..} => self.board.mark_moves(MoveStatus::Movable { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Capturable {..} => self.board.mark_valid_moves(MoveStatus::Capturable { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Threaten {..} => self.board.mark_valid_moves(MoveStatus::Threaten { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Pierced {..} => self.board.mark_valid_moves(MoveStatus::Pierced { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::EnPassant {..} => self.board.mark_valid_moves(MoveStatus::EnPassant { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Castling {..} => self.board.mark_valid_moves(MoveStatus::Castling { by_color: color, activated: true }, (*i).0),
+                    MoveStatus::Movable {..} => self.board.mark_valid_moves(MoveStatus::Movable { by_color: color, activated: true }, (*i).0),
                     _ => (),
                 }
             });
@@ -91,6 +92,7 @@ impl GameManager {
             .any(|i| {
                 (*i).0 == coord_to && match (*i).1 {
                     MoveStatus::Capturable {..} => true,
+                    MoveStatus::EnPassant {..} => true,
                     MoveStatus::Movable {..} => true,
                     MoveStatus::Castling {..} => true,
                     _ => false,
@@ -104,8 +106,8 @@ impl GameManager {
         self.piece_selected.as_mut().unwrap().move_to(&mut self.board, coord_to).unwrap();
         self.piece_selected = None;
         self.state = GameState::Playing { turn: color.opposite() };
+        self.turn_count += 1;
         self.board.clear_marks();
-        self.board.update_capture_board();
 
         Ok(())
     }

@@ -7,15 +7,14 @@ use std::io;
 
 use pieces::Piece::{P, N, B, R, Q, K};
 use square::Square;
-use board::Board;
 use game::GameManager;
 
 use crate::pieces::{Piece, Pawn, Color, Rook, King};
 
 fn main() {
     let mut game = GameManager::new();
-    game.get_board_mut().spawn(K(King::new(Color::Black)), Square::B7).ok();
-    game.get_board_mut().spawn(P(Pawn::new(Color::White)), Square::B6).ok();
+    game.get_board_mut().spawn(P(Pawn::new(Color::Black)), Square::C7).ok();
+    game.get_board_mut().spawn(P(Pawn::new(Color::White)), Square::B5).ok();
     // game.get_board_mut().spawn(R(Rook::new(Color::Black)), Square::B4).ok();
 
     // game.get_board_mut().clear_marks();
@@ -26,7 +25,7 @@ fn main() {
     let stdin = io::stdin();
     loop {
         match &game.get_state() {
-            game::GameState::Playing { turn } => {
+            game::GameState::Playing { .. } => {
                 loop {
                     match game.get_turn() {
                         Color::White => print!("White's turn, "),
@@ -71,25 +70,25 @@ fn main() {
             game::GameState::InCheck { by_color } => {
                 
             },
-            game::GameState::Promoting { pawn } => {
-                // loop {
-                //     println!("select a piece to promote to: (Q, R, B, N) ");
-                //     stdin.read_line(&mut user_input).unwrap();
+            game::GameState::Promoting { ref pawn } => {
+                loop {
+                    println!("select a piece to promote to: (Q, R, B, N) ");
+                    stdin.read_line(&mut user_input).unwrap();
 
-                //     match user_input.trim() {
-                //         "Q" | "q" => { pawn.try_into_queen(); break; },
-                //         "R" | "r" => { pawn.try_into_rook(); break; },
-                //         "B" | "b" => { pawn.try_into_bishop(); break; },
-                //         "N" | "n" => { pawn.try_into_knight(); break; },
-                //         _ => {
-                //             println!("invalid input");
-                //             user_input.clear();
-                //             continue;
-                //         }
-                //     };
-                // }
+                    match user_input.trim() {
+                        "Q" | "q" => { pawn.try_into_queen(); break; },
+                        "R" | "r" => { pawn.try_into_rook(); break; },
+                        "B" | "b" => { pawn.try_into_bishop(); break; },
+                        "N" | "n" => { pawn.try_into_knight(); break; },
+                        _ => {
+                            println!("invalid input");
+                            user_input.clear();
+                            continue;
+                        }
+                    };
+                }
 
-                // user_input.clear();
+                user_input.clear();
                 
             },
         }
