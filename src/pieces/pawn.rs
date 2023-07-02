@@ -44,16 +44,12 @@ impl Pawn {
                 let is_enemy_piece_left_en_passant = board.get_piece(Square::from_position((current_file - 1, current_rank))).is_some_and(|x| x.get_color() != self.color );
                 let is_enemy_piece_right_en_passant = board.get_piece(Square::from_position((current_file + 1, current_rank))).is_some_and(|x| x.get_color() != self.color );
 
-                if board.is_empty(Square::from_position((current_file, target_rank))) {
-                    if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable { by_color: self.color, activated: false }));
-                    }
+                if board.is_empty(Square::from_position((current_file, target_rank))) && board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
+                    valid_moves.push((Square::from_position((current_file, target_rank)), MoveStatus::Movable { by_color: self.color, activated: false }));
                 }
                 // Double move from the starting rank
-                if current_rank == 6 && board.is_empty(Square::from_position((current_file, target_rank))) {
-                    if board.get_piece(Square::from_position((current_file, target_rank - 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank - 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
-                    }
+                if current_rank == 6 && board.is_empty(Square::from_position((current_file, target_rank))) && board.get_piece(Square::from_position((current_file, target_rank - 1))).is_none() {
+                    valid_moves.push((Square::from_position((current_file, target_rank - 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
                 }
                 // Capture diagonally to the left
                 if current_file > 0 {
@@ -105,10 +101,8 @@ impl Pawn {
 
                 }
                 // Double move from the starting rank
-                if current_rank == 1 && board.is_empty(Square::from_position((current_file, target_rank))) {
-                    if board.get_piece(Square::from_position((current_file, target_rank + 1))).is_none() {
-                        valid_moves.push((Square::from_position((current_file, target_rank + 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
-                    }
+                if current_rank == 1 && board.is_empty(Square::from_position((current_file, target_rank))) && board.get_piece(Square::from_position((current_file, target_rank + 1))).is_none() {
+                    valid_moves.push((Square::from_position((current_file, target_rank + 1)), MoveStatus::Movable { by_color: self.color, activated: false }));
                 }
                 // Capture diagonally to the left
                 if current_file > 0 && target_rank <= 7 {
@@ -152,7 +146,7 @@ impl Pawn {
 
     pub fn move_to(&mut self, board: &mut Board, coord_to: Square) -> Result<(), &'static str> {
         let rank_from = self.coord.get_rank() as usize;
-        let file_from = self.coord.get_file() as usize;
+        let _file_from = self.coord.get_file() as usize;
         let rank_to = coord_to.get_rank() as usize;
         let file_to = coord_to.get_file() as usize;
 

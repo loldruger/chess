@@ -5,11 +5,11 @@ mod game;
 
 use std::io;
 
-use pieces::Piece::{P, N, B, R, Q, K};
+use pieces::Piece::{P};
 use square::Square;
 use game::GameManager;
 
-use crate::pieces::{Piece, Pawn, Color, Rook, King};
+use crate::pieces::{Pawn, Color};
 
 fn main() {
     let mut game = GameManager::new();
@@ -67,7 +67,7 @@ fn main() {
 
                 }
             },
-            game::GameState::InCheck { by_color } => {
+            game::GameState::InCheck { by_color: _ } => {
                 
             },
             game::GameState::Promoting { ref pawn } => {
