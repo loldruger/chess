@@ -13,8 +13,8 @@ use crate::pieces::{Piece, Pawn, Color, Rook, King};
 
 fn main() {
     let mut game = GameManager::new();
-    game.get_board_mut().spawn(P(Pawn::new(Color::Black)), Square::C7).ok();
-    game.get_board_mut().spawn(P(Pawn::new(Color::White)), Square::B5).ok();
+    game.get_board_mut().spawn(P(Pawn::new(Color::White)), Square::C2).ok();
+    game.get_board_mut().spawn(P(Pawn::new(Color::Black)), Square::B4).ok();
     // game.get_board_mut().spawn(R(Rook::new(Color::Black)), Square::B4).ok();
 
     // game.get_board_mut().clear_marks();

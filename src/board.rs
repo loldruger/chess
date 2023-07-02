@@ -101,6 +101,13 @@ impl Board {
         }
     }
 
+    pub fn get_square_mut(&mut self, square: Square) -> Option<&mut SquareKind> {
+        let file = square.get_file() as usize;
+        let rank = square.get_rank() as usize;
+
+        Some(&mut self.square[file][rank])
+    }
+    
     pub fn get_capture_board(&mut self) -> &Vec<(Square, MoveStatus)> {
         &self.capture_board
     }

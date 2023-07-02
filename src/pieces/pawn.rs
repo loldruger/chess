@@ -1,4 +1,4 @@
-use crate::{board::Board, square::Square};
+use crate::{board::Board, square::{Square, SquareKind}};
 
 use super::{Color, MoveStatus};
 
@@ -41,6 +41,8 @@ impl Pawn {
 
                 let is_enemy_piece_left = board.get_piece(Square::from_position((current_file - 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
                 let is_enemy_piece_right = board.get_piece(Square::from_position((current_file + 1, target_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece_left_en_passant = board.get_piece(Square::from_position((current_file - 1, current_rank))).is_some_and(|x| x.get_color() != self.color );
+                let is_enemy_piece_right_en_passant = board.get_piece(Square::from_position((current_file + 1, current_rank))).is_some_and(|x| x.get_color() != self.color );
 
                 if board.is_empty(Square::from_position((current_file, target_rank))) {
                     if board.get_piece(Square::from_position((current_file, target_rank))).is_none() {
@@ -69,6 +71,22 @@ impl Pawn {
                         valid_moves.push((square, MoveStatus::Capturable { by_color: self.color, activated: false }));
                     } else {
                         valid_moves.push((square, MoveStatus::Threaten { by_color: self.color, activated: false }));
+                    }
+                }
+
+                if current_rank == 3 && is_enemy_piece_left_en_passant {
+                    if let Some(piece) = board.get_piece(Square::from_position((current_file, current_rank))) {
+                        if let super::Piece::P(_) = piece {
+                            valid_moves.push((Square::from_position((current_file - 1, target_rank)), MoveStatus::EnPassant { by_color: self.color, activated: false }));
+                        }
+                    }
+                }
+
+                if current_rank == 3 && is_enemy_piece_right_en_passant {
+                    if let Some(piece) = board.get_piece(Square::from_position((current_file, current_rank))) {
+                        if let super::Piece::P(_) = piece {
+                            valid_moves.push((Square::from_position((current_file + 1, target_rank)), MoveStatus::EnPassant { by_color: self.color, activated: false }));
+                        }
                     }
                 }
             },
@@ -142,11 +160,28 @@ impl Pawn {
                 if rank_from == 1 && rank_to == 0 {
                     // self.set_state(GameState::Promoting { pawn });
                 }
+
+                let square = board.get_square_mut(coord_to).unwrap();
+                if let SquareKind::Empty(MoveStatus::EnPassant { by_color, .. }) = square {
+                    if *by_color == self.color {
+                        board.despawn(Square::from_position((file_to as i32, rank_from as i32))).ok();
+                        
+                    }
+                }
             },
             Color::White => {
                 if rank_from == 6 && rank_to == 7 {
                     // self.set_state(GameState::Promoting { pawn });
                 } 
+
+                let square = board.get_square_mut(coord_to).unwrap();
+                if let SquareKind::Empty(MoveStatus::EnPassant { by_color, .. }) = square {
+                    if *by_color == self.color {
+                        board.despawn(Square::from_position((file_to as i32, rank_from as i32))).ok();
+                        
+                    }
+                }
+
             },
         }
         
