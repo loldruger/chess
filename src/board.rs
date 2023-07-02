@@ -23,10 +23,10 @@ impl Board {
                 piece.get_valid_moves(self, coord_to)
                     .iter()
                     .for_each(|i| {
-                        match (*i).1 {
-                            MoveStatus::Capturable {..} => self.capture_board.push(((*i).0, (*i).1)),
-                            MoveStatus::Threaten {..} => self.capture_board.push(((*i).0, (*i).1)),
-                            MoveStatus::Pierced  {..} => self.capture_board.push(((*i).0, (*i).1)),
+                        match i.1 {
+                            MoveStatus::Capturable {..} => self.capture_board.push((i.0, i.1)),
+                            MoveStatus::Threaten {..} => self.capture_board.push((i.0, i.1)),
+                            MoveStatus::Pierced  {..} => self.capture_board.push((i.0, i.1)),
                             _ => (),
                         }
                     });
@@ -71,13 +71,7 @@ impl Board {
 
         match &self.square[file][rank] {
             SquareKind::Empty(_) => false,
-            SquareKind::Occupied(piece, _) => {
-                if piece.get_color() == by_color {
-                    false
-                } else {
-                    true
-                }
-            },
+            SquareKind::Occupied(piece, _) => piece.get_color() != by_color,
         }
     }
 
@@ -107,7 +101,7 @@ impl Board {
 
         Some(&mut self.square[file][rank])
     }
-    
+
     pub fn get_capture_board(&mut self) -> &Vec<(Square, MoveStatus)> {
         &self.capture_board
     }
@@ -117,22 +111,19 @@ impl Board {
 
         for (i, rank) in self.square.clone().iter().enumerate() {
             for (j, square) in rank.iter().enumerate() {
-                match square {
-                    SquareKind::Occupied(piece, _) => {
-                        piece
-                            .get_valid_moves(self, Square::from_position((i as i32, j as i32)))
-                            .iter()
-                            .for_each(|i| {
-                                match (*i).1 {
-                                    MoveStatus::Capturable {..} => self.capture_board.push(((*i).0, (*i).1)),
-                                    MoveStatus::Threaten {..} => self.capture_board.push(((*i).0, (*i).1)),
-                                    MoveStatus::Pierced {..} => self.capture_board.push(((*i).0, (*i).1)),
-                                    _ => (),
-                                }
-                            });
-                    },
-                    _ => (),
-                }
+                if let SquareKind::Occupied(piece, _) = square {
+                    piece
+                        .get_valid_moves(self, Square::from_position((i as i32, j as i32)))
+                        .iter()
+                        .for_each(|i| {
+                            match i.1 {
+                                MoveStatus::Capturable {..} => self.capture_board.push((i.0, i.1)),
+                                MoveStatus::Threaten {..} => self.capture_board.push((i.0, i.1)),
+                                MoveStatus::Pierced {..} => self.capture_board.push((i.0, i.1)),
+                                _ => (),
+                            }
+                        });
+                    }
             }
         }
     }

@@ -60,13 +60,13 @@ impl GameManager {
             .get_valid_moves(&mut self.board, coord)
             .iter()
             .for_each(|i| {
-                match (*i).1 {
-                    MoveStatus::Capturable {..} => self.board.mark_valid_moves(MoveStatus::Capturable { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Threaten {..} => self.board.mark_valid_moves(MoveStatus::Threaten { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Pierced {..} => self.board.mark_valid_moves(MoveStatus::Pierced { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::EnPassant {..} => self.board.mark_valid_moves(MoveStatus::EnPassant { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Castling {..} => self.board.mark_valid_moves(MoveStatus::Castling { by_color: color, activated: true }, (*i).0),
-                    MoveStatus::Movable {..} => self.board.mark_valid_moves(MoveStatus::Movable { by_color: color, activated: true }, (*i).0),
+                match i.1 {
+                    MoveStatus::Capturable {..} => self.board.mark_valid_moves(MoveStatus::Capturable { by_color: color, activated: true }, i.0),
+                    MoveStatus::Threaten {..} => self.board.mark_valid_moves(MoveStatus::Threaten { by_color: color, activated: true }, i.0),
+                    MoveStatus::Pierced {..} => self.board.mark_valid_moves(MoveStatus::Pierced { by_color: color, activated: true }, i.0),
+                    MoveStatus::EnPassant {..} => self.board.mark_valid_moves(MoveStatus::EnPassant { by_color: color, activated: true }, i.0),
+                    MoveStatus::Castling {..} => self.board.mark_valid_moves(MoveStatus::Castling { by_color: color, activated: true }, i.0),
+                    MoveStatus::Movable {..} => self.board.mark_valid_moves(MoveStatus::Movable { by_color: color, activated: true }, i.0),
                     _ => (),
                 }
             });
@@ -90,13 +90,13 @@ impl GameManager {
             .get_valid_moves(&mut self.board, coord_from)
             .iter()
             .any(|i| {
-                (*i).0 == coord_to && match (*i).1 {
-                    MoveStatus::Capturable {..} => true,
-                    MoveStatus::EnPassant {..} => true,
-                    MoveStatus::Movable {..} => true,
-                    MoveStatus::Castling {..} => true,
-                    _ => false,
-                }
+                i.0 == coord_to && matches!(
+                    i.1,
+                    MoveStatus::Capturable {..} |
+                    MoveStatus::EnPassant {..} |
+                    MoveStatus::Movable {..} |
+                    MoveStatus::Castling {..}
+                )
             });
 
         if !condition {

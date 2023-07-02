@@ -60,7 +60,7 @@ impl King {
             let dest_file = current_file + file;
             let dest_rank = current_rank + rank;
 
-            if dest_file >= 0 && dest_file < 8 && dest_rank >= 0 && dest_rank < 8 {
+            if (0..8).contains(&dest_file) && (0..8).contains(&dest_rank) {
                 let position = Square::from_position((dest_file, dest_rank));
                 valid_moves.push((position, MoveStatus::Capturable { by_color: self.color, activated: false }));
             }

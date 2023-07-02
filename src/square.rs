@@ -1,5 +1,6 @@
 use crate::pieces::{Piece, MoveStatus};
 
+#[allow(dead_code)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Square {
     A1, A2, A3, A4, A5, A6, A7, A8,
@@ -29,26 +30,19 @@ impl Square {
 
         let file = chars.next().unwrap().to_ascii_uppercase() as u8;
         let rank = chars.next().unwrap().to_digit(10);
-        if rank.is_none() {
-            return None;
-        }
+        rank?;
+        
         let rank = rank.unwrap() as u8;
 
-        if file < b'A' || file > b'H' || rank < 1 || rank > 8 {
+        if !(b'A'..=b'H').contains(&file) || !(1..=8).contains(&rank) {
             return None;
         }
 
         let calc = (file - b'A') * 8 + (rank - 1);
 
-        Some(unsafe { std::mem::transmute(calc as u8) })
+        Some(unsafe { std::mem::transmute(calc) })
     }
     
-    pub fn into_position(self) -> (i32, i32) {
-        let calc = self as u8;
-
-        ((calc / 8) as i32, (calc % 8) as i32)
-    }
-
     pub fn get_rank(self) -> i32 {
         let calc = self as u8;
 

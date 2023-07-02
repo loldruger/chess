@@ -43,7 +43,7 @@ impl Knight {
             let target_file = current_file + file_offset;
             let target_rank = current_rank + rank_offset;
     
-            if target_file >= 0 && target_file < 8 && target_rank >= 0 && target_rank < 8 {
+            if (0..8).contains(&target_file) && (0..8).contains(&target_rank) {
                 let position = Square::from_position((target_rank, target_file));
                 
                 if !board.is_empty(position) {
