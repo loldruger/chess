@@ -1,1 +1,1 @@
-TYPE-SAFE Chess-rs with rust on terminal
+TYPE-SAFE Chess-rs on terminal without any dependancies
